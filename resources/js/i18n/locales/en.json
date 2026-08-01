@@ -22,6 +22,7 @@
     "nav": {
         "dashboard": "Dashboard",
         "products": "Products",
+        "media": "Media",
         "users": "Users",
         "signOut": "Sign out",
         "signingOut": "Signing out…"
@@ -103,6 +104,24 @@
         "viewAsTable": "View as table",
         "hideTable": "Hide table",
         "date": "Date"
+    },
+    "media": {
+        "title": "Media",
+        "subtitle": "{total} files",
+        "upload": "Upload",
+        "uploading": "Uploading…",
+        "searchPlaceholder": "Search by file name",
+        "empty": "No images yet.",
+        "dropHint": "Drop files here, or use the Upload button.",
+        "copyUrl": "Copy URL",
+        "copied": "Copied",
+        "picker": {
+            "title": "Choose an image"
+        },
+        "deleteDialog": {
+            "title": "Delete file",
+            "body": "Permanently delete {name}? Anything already using it will break."
+        }
     },
     "products": {
         "title": "Products",

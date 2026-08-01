@@ -22,6 +22,7 @@
     "nav": {
         "dashboard": "儀表板",
         "products": "產品",
+        "media": "媒體",
         "users": "使用者",
         "signOut": "登出",
         "signingOut": "登出中…"
@@ -103,6 +104,24 @@
         "viewAsTable": "以表格檢視",
         "hideTable": "隱藏表格",
         "date": "日期"
+    },
+    "media": {
+        "title": "媒體",
+        "subtitle": "共 {total} 個檔案",
+        "upload": "上傳",
+        "uploading": "上傳中…",
+        "searchPlaceholder": "以檔名搜尋",
+        "empty": "還沒有任何圖片。",
+        "dropHint": "把檔案拖曳到這裡,或使用上傳按鈕。",
+        "copyUrl": "複製網址",
+        "copied": "已複製",
+        "picker": {
+            "title": "選擇圖片"
+        },
+        "deleteDialog": {
+            "title": "刪除檔案",
+            "body": "確定要永久刪除「{name}」嗎?已經使用這個檔案的地方會失效。"
+        }
     },
     "products": {
         "title": "產品",

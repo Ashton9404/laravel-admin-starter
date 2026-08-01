@@ -21,6 +21,12 @@ const routes = [
         meta: { requiresAuth: true, permission: 'products.view' },
     },
     {
+        path: '/media',
+        name: 'media.index',
+        component: () => import('@/pages/media/MediaLibrary.vue'),
+        meta: { requiresAuth: true, permission: 'media.view' },
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('@/pages/auth/Login.vue'),

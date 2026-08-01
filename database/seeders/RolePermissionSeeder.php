@@ -20,6 +20,9 @@ class RolePermissionSeeder extends Seeder
         Permission::PRODUCTS_CREATE => 'Create products',
         Permission::PRODUCTS_UPDATE => 'Update products',
         Permission::PRODUCTS_DELETE => 'Delete products',
+        Permission::MEDIA_VIEW => 'View the media library',
+        Permission::MEDIA_UPLOAD => 'Upload files',
+        Permission::MEDIA_DELETE => 'Delete files',
     ];
 
     /**
@@ -41,6 +44,9 @@ class RolePermissionSeeder extends Seeder
             Permission::PRODUCTS_CREATE,
             Permission::PRODUCTS_UPDATE,
             Permission::PRODUCTS_DELETE,
+            Permission::MEDIA_VIEW,
+            Permission::MEDIA_UPLOAD,
+            Permission::MEDIA_DELETE,
         ],
         Role::USER => [],
     ];

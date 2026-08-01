@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductCoverController;
 use App\Http\Controllers\UserController;
@@ -43,6 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('products/{product}/cover', [ProductCoverController::class, 'destroy'])->name('products.cover.destroy');
 
     Route::apiResource('products', ProductController::class);
+
+    // Only these three: media is upload-and-delete, never edited in place.
+    Route::apiResource('media', MediaController::class)->only(['index', 'store', 'destroy']);
 });
 
 Route::put('/user/locale', [LocaleController::class, 'update'])

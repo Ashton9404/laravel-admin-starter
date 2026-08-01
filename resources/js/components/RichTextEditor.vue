@@ -1,6 +1,7 @@
 <script setup>
-import { onBeforeUnmount, watch } from 'vue';
+import { onBeforeUnmount, ref, watch } from 'vue';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
+import MediaPickerModal from '@/components/MediaPickerModal.vue';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -69,12 +70,11 @@ function toggleLink() {
     editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 }
 
-function addImage() {
-    const url = window.prompt(t('products.editor.imagePrompt'), '');
+const picking = ref(false);
 
-    if (url) {
-        editor.value.chain().focus().setImage({ src: url }).run();
-    }
+function insertImage(media) {
+    editor.value.chain().focus().setImage({ src: media.url, alt: media.name }).run();
+    picking.value = false;
 }
 
 const buttonClass =
@@ -172,7 +172,7 @@ const activeClass = 'bg-neutral-200 dark:bg-neutral-700';
             >
                 🔗
             </button>
-            <button type="button" :class="buttonClass" :title="t('products.editor.image')" @click="addImage">
+            <button type="button" :class="buttonClass" :title="t('products.editor.image')" @click="picking = true">
                 🖼
             </button>
 
@@ -199,6 +199,11 @@ const activeClass = 'bg-neutral-200 dark:bg-neutral-700';
         </div>
 
         <EditorContent :editor="editor" />
+
+        <!-- Images come from the media library rather than a pasted URL: the
+             file ends up managed, reusable and on our own domain instead of
+             hotlinked from somewhere that may vanish. -->
+        <MediaPickerModal v-if="picking" @close="picking = false" @select="insertImage" />
     </div>
 </template>
 
