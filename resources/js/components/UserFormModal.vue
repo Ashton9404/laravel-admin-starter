@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import axios, { errorMessage, validationErrors } from '@/bootstrap';
 import { useAuthStore } from '@/stores/auth';
 import ModalDialog from '@/components/ModalDialog.vue';
@@ -18,6 +19,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'saved']);
 
 const auth = useAuthStore();
+const { t } = useI18n();
 const editing = props.user !== null;
 
 const form = reactive({
@@ -67,7 +69,7 @@ async function submit() {
         errors.value = validationErrors(error);
 
         if (Object.keys(errors.value).length === 0) {
-            failure.value = errorMessage(error);
+            failure.value = errorMessage(error, t('common.somethingWentWrong'));
         }
     } finally {
         saving.value = false;
@@ -76,28 +78,31 @@ async function submit() {
 </script>
 
 <template>
-    <ModalDialog :title="editing ? 'Edit user' : 'New user'" @close="emit('close')">
+    <ModalDialog
+        :title="editing ? t('users.form.editTitle') : t('users.form.createTitle')"
+        @close="emit('close')"
+    >
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <AlertMessage :message="failure" variant="error" />
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="user-name">Name</InputLabel>
+                <InputLabel for="user-name">{{ t('auth.name') }}</InputLabel>
                 <TextInput id="user-name" v-model="form.name" :invalid="!!errors.name" />
                 <InputError :message="errors.name" />
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="user-email">Email</InputLabel>
+                <InputLabel for="user-email">{{ t('auth.email') }}</InputLabel>
                 <TextInput id="user-email" v-model="form.email" type="email" :invalid="!!errors.email" />
                 <InputError :message="errors.email" />
                 <p v-if="editing" class="text-xs text-neutral-500 dark:text-neutral-500">
-                    Changing this clears the email verification.
+                    {{ t('users.form.emailChangeHint') }}
                 </p>
             </div>
 
             <div class="flex flex-col gap-1.5">
                 <InputLabel for="user-password">
-                    {{ editing ? 'New password (optional)' : 'Password' }}
+                    {{ editing ? t('users.form.newPasswordOptional') : t('auth.password') }}
                 </InputLabel>
                 <TextInput
                     id="user-password"
@@ -110,7 +115,7 @@ async function submit() {
             </div>
 
             <div v-if="form.password" class="flex flex-col gap-1.5">
-                <InputLabel for="user-password-confirm">Confirm password</InputLabel>
+                <InputLabel for="user-password-confirm">{{ t('auth.confirmPassword') }}</InputLabel>
                 <TextInput
                     id="user-password-confirm"
                     v-model="form.password_confirmation"
@@ -120,7 +125,9 @@ async function submit() {
             </div>
 
             <fieldset class="flex flex-col gap-2">
-                <legend class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Roles</legend>
+                <legend class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    {{ t('users.form.roles') }}
+                </legend>
 
                 <label
                     v-for="role in roles"
@@ -137,7 +144,7 @@ async function submit() {
                     />
                     {{ role.label }}
                     <span v-if="role.name === 'admin' && !auth.isAdmin" class="text-xs text-neutral-500">
-                        (administrators only)
+                        {{ t('users.form.adminOnly') }}
                     </span>
                 </label>
 
@@ -151,12 +158,12 @@ async function submit() {
                            hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
                     @click="emit('close')"
                 >
-                    Cancel
+                    {{ t('common.cancel') }}
                 </button>
 
                 <div class="w-32">
                     <PrimaryButton :loading="saving">
-                        {{ saving ? 'Saving…' : 'Save' }}
+                        {{ saving ? t('common.saving') : t('common.save') }}
                     </PrimaryButton>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import axios, { initCsrf } from '@/bootstrap';
+import { setLocale, storedLocale } from '@/i18n';
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref(null);
@@ -30,6 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const { data } = await axios.get('/api/user');
             user.value = data.data;
+            await adoptAccountLocale();
         } catch {
             user.value = null;
         } finally {
@@ -37,16 +39,61 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    /**
+     * Reconcile the language stored on the account with the one in this browser.
+     *
+     * A saved preference wins, because it was chosen deliberately and should
+     * follow the account to any device. If the account has none but this browser
+     * does, push that up — so a language picked before signing in is not lost at
+     * the moment of signing in.
+     */
+    async function adoptAccountLocale() {
+        if (user.value?.locale) {
+            setLocale(user.value.locale);
+
+            return;
+        }
+
+        const local = storedLocale();
+
+        if (local) {
+            await persistLocale(local);
+        }
+    }
+
+    async function persistLocale(next) {
+        try {
+            await axios.put('/api/user/locale', { locale: next });
+
+            if (user.value) {
+                user.value.locale = next;
+            }
+        } catch {
+            // A failed sync is not worth interrupting the user for; the choice
+            // still applies locally and will be retried on the next sign-in.
+        }
+    }
+
+    async function changeLocale(next) {
+        setLocale(next);
+
+        if (isAuthenticated.value) {
+            await persistLocale(next);
+        }
+    }
+
     async function login(credentials) {
         await initCsrf();
         const { data } = await axios.post('/api/login', credentials);
         user.value = data.data;
+        await adoptAccountLocale();
     }
 
     async function register(details) {
         await initCsrf();
         const { data } = await axios.post('/api/register', details);
         user.value = data.data;
+        await adoptAccountLocale();
     }
 
     async function logout() {
@@ -91,6 +138,7 @@ export const useAuthStore = defineStore('auth', () => {
         isVerified,
         isAdmin,
         can,
+        changeLocale,
         initialise,
         login,
         register,

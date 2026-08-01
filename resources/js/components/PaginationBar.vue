@@ -1,9 +1,12 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 defineProps({
     meta: { type: Object, required: true },
 });
 
 const emit = defineEmits(['change']);
+const { t } = useI18n();
 
 function go(page) {
     emit('change', page);
@@ -13,7 +16,7 @@ function go(page) {
 <template>
     <nav v-if="meta.last_page > 1" class="flex items-center justify-between gap-4" aria-label="Pagination">
         <p class="text-sm text-neutral-500 dark:text-neutral-400">
-            Showing {{ meta.from ?? 0 }}–{{ meta.to ?? 0 }} of {{ meta.total }}
+            {{ t('users.pagination.showing', { from: meta.from ?? 0, to: meta.to ?? 0, total: meta.total }) }}
         </p>
 
         <div class="flex items-center gap-2">
@@ -25,7 +28,7 @@ function go(page) {
                        dark:border-neutral-700 dark:hover:bg-neutral-800"
                 @click="go(meta.current_page - 1)"
             >
-                Previous
+                {{ t('users.pagination.previous') }}
             </button>
 
             <span class="text-sm tabular-nums text-neutral-500 dark:text-neutral-400">
@@ -40,7 +43,7 @@ function go(page) {
                        dark:border-neutral-700 dark:hover:bg-neutral-800"
                 @click="go(meta.current_page + 1)"
             >
-                Next
+                {{ t('users.pagination.next') }}
             </button>
         </div>
     </nav>

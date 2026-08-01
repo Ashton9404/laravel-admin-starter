@@ -112,9 +112,16 @@
 
 ### 6. 雙語系(UI)
 
-- 狀態: ⬜
-- 內容: EN / 中文切換、Navbar 語言選單、記憶語言偏好
-- 技術: vue-i18n、localStorage、users.locale 欄位同步
+- 狀態: ✅(2026-08-01 完成,測試累計 77 passed)
+- 內容: EN / 繁中切換、Navbar 語言選單、記憶語言偏好
+- 技術: vue-i18n 11、localStorage、`users.locale` 欄位同步、Laravel lang 檔
+- 實作:
+
+  - `App\Support\Locales` 單一語系清單,中介層 / 驗證規則 / 前端共用
+  - `SetLocale` 中介層決定 API 回應語言:帳號偏好 > `Accept-Language` > 預設
+  - `PUT /api/user/locale` 儲存偏好;前端切換時同步寫回帳號
+  - `lang/zh-TW/`(auth / passwords / validation / pagination)+ `lang/zh-TW.json`
+  - 前端所有畫面字串抽成 `resources/js/i18n/locales/{en,zh-TW}.json`
 
 ### 7. 產品模組(官網內容管理)
 
@@ -292,6 +299,34 @@ Windows 主機的 bind mount **不會把 inotify 事件傳進 Linux 容器**,
 Vite 的檔案監看器從來沒被觸發,轉譯快取也永遠不失效 ——
 表現就是「存檔後畫面完全沒反應」。解法是 `server.watch.usePolling: true`。
 任何在 Windows/macOS 上用 Docker 跑 Vite 的人都會遇到,值得寫進 README。
+
+### 筆記 6 — 雙語系
+
+**後端也要跟著切語言,不然體驗會斷在驗證錯誤**
+前端翻得再完整,只要表單一送出失敗,Laravel 回的 422 訊息還是英文,
+整個中文介面瞬間破功。所以 axios 每次請求都帶 `Accept-Language`,
+後端用 `SetLocale` 中介層決定回應語言。
+
+**優先序:帳號偏好 > 瀏覽器標頭 > 預設**
+帳號上存的是使用者「刻意選過」的,瀏覽器標頭只是猜測,所以前者優先。
+`users.locale` 設成 nullable 而非給預設值 —— null 代表「從沒選過」,
+這樣才有機會退回去用瀏覽器語言,而不是把所有人默默釘在英文。
+
+**訪客先選的語言,登入後不能弄丟**
+沒登入時語言存在 localStorage。登入後若帳號還沒有偏好,就把 localStorage
+那個推上去存起來;若帳號已有偏好則以帳號為準。這樣「選了語言 → 才去登入」
+的順序不會把選擇吃掉。
+
+**`zh-CN` 不要自作聰明對應到 `zh-TW`**
+簡體與繁體是不同書寫系統。`Locales::fromAcceptLanguage()` 只比對完整標籤,
+比對不到就退回預設,寧可給英文也不要給錯的字體。
+
+**Windows + Docker 的 Vite polling 第二層陷阱**
+上一節加了 `usePolling: true` 解決 HMR 失效,結果 dev server 直接卡死 ——
+因為 polling 會去輪詢**整個專案目錄**,包含 `vendor/`(上萬個檔案)和 `.git`,
+在 Windows bind mount 上等於自殺。必須同時設 `watch.ignored` 把
+`vendor` / `node_modules` / `storage` / `.git` 排除掉。
+「開了 polling」和「開對 polling」是兩件事。
 
 ### 選型決策 — 為什麼不用 Summernote,改用 TipTap
 

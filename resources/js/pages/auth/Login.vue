@@ -1,6 +1,7 @@
 <script setup>
 import { computed, reactive, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import { errorMessage, validationErrors } from '@/bootstrap';
 import GuestLayout from '@/layouts/GuestLayout.vue';
@@ -13,6 +14,7 @@ import TextInput from '@/components/TextInput.vue';
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 
 const form = reactive({ email: '', password: '', remember: false });
 const errors = ref({});
@@ -23,16 +25,16 @@ const noticeIsError = computed(() => route.query.verified === '0');
 
 const notice = computed(() => {
     if (route.query.reset === '1') {
-        return 'Your password has been reset. Sign in with your new password.';
+        return t('auth.login.passwordReset');
     }
 
     switch (route.query.verified) {
         case '1':
-            return 'Your email address has been verified. You can sign in now.';
+            return t('auth.login.verified');
         case 'already':
-            return 'That email address was already verified.';
+            return t('auth.login.alreadyVerified');
         case '0':
-            return 'That verification link is no longer valid. Sign in and request a new one.';
+            return t('auth.login.verificationExpired');
         default:
             return '';
     }
@@ -50,7 +52,7 @@ async function submit() {
         errors.value = validationErrors(error);
 
         if (Object.keys(errors.value).length === 0) {
-            failure.value = errorMessage(error);
+            failure.value = errorMessage(error, t('common.somethingWentWrong'));
         }
     } finally {
         loading.value = false;
@@ -59,19 +61,19 @@ async function submit() {
 </script>
 
 <template>
-    <GuestLayout title="Sign in" subtitle="Welcome back.">
+    <GuestLayout :title="t('auth.login.title')" :subtitle="t('auth.login.subtitle')">
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <AlertMessage :message="notice" :variant="noticeIsError ? 'error' : 'success'" />
             <AlertMessage :message="failure" variant="error" />
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="email">Email</InputLabel>
+                <InputLabel for="email">{{ t('auth.email') }}</InputLabel>
                 <TextInput id="email" v-model="form.email" type="email" autocomplete="email" :invalid="!!errors.email" />
                 <InputError :message="errors.email" />
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="password">Password</InputLabel>
+                <InputLabel for="password">{{ t('auth.password') }}</InputLabel>
                 <TextInput
                     id="password"
                     v-model="form.password"
@@ -89,29 +91,29 @@ async function submit() {
                         type="checkbox"
                         class="rounded border-neutral-300 text-indigo-600 dark:border-neutral-700"
                     />
-                    Remember me
+                    {{ t('auth.login.remember') }}
                 </label>
 
                 <RouterLink
                     :to="{ name: 'password.request' }"
                     class="text-sm text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
                 >
-                    Forgot password?
+                    {{ t('auth.login.forgot') }}
                 </RouterLink>
             </div>
 
             <PrimaryButton :loading="loading">
-                {{ loading ? 'Signing in…' : 'Sign in' }}
+                {{ loading ? t('auth.login.submitting') : t('auth.login.submit') }}
             </PrimaryButton>
         </form>
 
         <template #footer>
-            No account?
+            {{ t('auth.login.noAccount') }}
             <RouterLink
                 :to="{ name: 'register' }"
                 class="text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
             >
-                Create one
+                {{ t('auth.login.createOne') }}
             </RouterLink>
         </template>
     </GuestLayout>

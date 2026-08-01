@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\UserController;
 use App\Http\Resources\UserResource;
 use App\Models\Permission;
@@ -30,6 +31,10 @@ Route::get('/dashboard', DashboardController::class)
 // No permission middleware here: UserPolicy decides per action and per record,
 // which is what lets a user edit their own profile without users.update.
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
+
+Route::put('/user/locale', [LocaleController::class, 'update'])
+    ->middleware('auth:sanctum')
+    ->name('user.locale');
 
 // Feeds the role pickers and filters. Read-only reference data.
 Route::get('/roles', fn () => Role::orderBy('id')->get(['id', 'name', 'label']))

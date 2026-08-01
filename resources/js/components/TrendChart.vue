@@ -1,6 +1,9 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Chart, currentTheme } from '@/charts';
+
+const { t, locale } = useI18n();
 
 const props = defineProps({
     points: { type: Array, required: true },
@@ -13,7 +16,7 @@ let chart = null;
 let media = null;
 
 function formatDay(iso) {
-    return new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, {
+    return new Date(`${iso}T00:00:00`).toLocaleDateString(locale.value, {
         month: 'short',
         day: 'numeric',
     });
@@ -103,7 +106,8 @@ onBeforeUnmount(() => {
     chart?.destroy();
 });
 
-watch(() => props.points, render, { deep: true });
+// Axis tick labels are locale-formatted, so a language switch has to redraw.
+watch([() => props.points, locale], render, { deep: true });
 </script>
 
 <template>
@@ -119,7 +123,7 @@ watch(() => props.points, render, { deep: true });
             class="self-start text-xs text-neutral-500 underline underline-offset-4 dark:text-neutral-400"
             @click="showTable = !showTable"
         >
-            {{ showTable ? 'Hide table' : 'View as table' }}
+            {{ showTable ? t('dashboard.hideTable') : t('dashboard.viewAsTable') }}
         </button>
 
         <!-- The table view is the WCAG-clean twin: every value the line encodes
@@ -129,7 +133,7 @@ watch(() => props.points, render, { deep: true });
                 <caption class="sr-only">{{ label }}</caption>
                 <thead class="sticky top-0 bg-neutral-50 dark:bg-neutral-900">
                     <tr class="text-left text-neutral-500 dark:text-neutral-400">
-                        <th scope="col" class="px-3 py-2 font-medium">Date</th>
+                        <th scope="col" class="px-3 py-2 font-medium">{{ t('dashboard.date') }}</th>
                         <th scope="col" class="px-3 py-2 text-right font-medium">{{ label }}</th>
                     </tr>
                 </thead>

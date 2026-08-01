@@ -1,0 +1,9 @@
+{
+    "Logged out.": "已登出。",
+    "User deleted.": "使用者已刪除。",
+    "Your email address is already verified.": "你的 Email 已經驗證過了。",
+    "A fresh verification link has been sent to your email address.": "新的驗證連結已寄到你的信箱。",
+    "You do not have permission to perform this action.": "你沒有執行這個操作的權限。",
+    "Only an administrator may change the administrator role.": "只有管理員可以變更管理員角色。",
+    "Only an administrator may grant the administrator role.": "只有管理員可以授予管理員角色。"
+}

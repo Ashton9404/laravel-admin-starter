@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import { errorMessage } from '@/bootstrap';
 import GuestLayout from '@/layouts/GuestLayout.vue';
@@ -9,11 +10,16 @@ import PrimaryButton from '@/components/PrimaryButton.vue';
 
 const auth = useAuthStore();
 const router = useRouter();
+const { t } = useI18n();
 
 const status = ref('');
 const failure = ref('');
 const loading = ref(false);
 const signingOut = ref(false);
+
+const subtitle = computed(() =>
+    t('auth.verify.subtitle', { email: auth.user?.email ?? t('auth.verify.subtitleFallback') }),
+);
 
 onMounted(() => {
     if (auth.isVerified) {
@@ -29,7 +35,7 @@ async function resend() {
     try {
         status.value = await auth.resendVerificationEmail();
     } catch (error) {
-        failure.value = errorMessage(error, 'Too many requests. Please wait a minute and try again.');
+        failure.value = errorMessage(error, t('auth.verify.throttled'));
     } finally {
         loading.value = false;
     }
@@ -48,21 +54,17 @@ async function signOut() {
 </script>
 
 <template>
-    <GuestLayout
-        title="Verify your email"
-        :subtitle="`We sent a verification link to ${auth.user?.email ?? 'your inbox'}.`"
-    >
+    <GuestLayout :title="t('auth.verify.title')" :subtitle="subtitle">
         <div class="flex flex-col gap-4">
             <AlertMessage :message="status" variant="success" />
             <AlertMessage :message="failure" variant="error" />
 
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                Click the link in that email to finish setting up your account. If it never
-                arrived, we can send another one.
+                {{ t('auth.verify.body') }}
             </p>
 
             <PrimaryButton :loading="loading" @click.prevent="resend">
-                {{ loading ? 'Sending…' : 'Resend verification email' }}
+                {{ loading ? t('auth.verify.resending') : t('auth.verify.resend') }}
             </PrimaryButton>
         </div>
 
@@ -73,7 +75,7 @@ async function signOut() {
                 class="text-indigo-600 underline underline-offset-4 disabled:opacity-60 dark:text-indigo-400"
                 @click="signOut"
             >
-                {{ signingOut ? 'Signing out…' : 'Sign out' }}
+                {{ signingOut ? t('nav.signingOut') : t('nav.signOut') }}
             </button>
         </template>
     </GuestLayout>

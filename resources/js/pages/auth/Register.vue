@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import { errorMessage, validationErrors } from '@/bootstrap';
 import GuestLayout from '@/layouts/GuestLayout.vue';
@@ -12,6 +13,7 @@ import TextInput from '@/components/TextInput.vue';
 
 const auth = useAuthStore();
 const router = useRouter();
+const { t } = useI18n();
 
 const form = reactive({
     name: '',
@@ -37,7 +39,7 @@ async function submit() {
         errors.value = validationErrors(error);
 
         if (Object.keys(errors.value).length === 0) {
-            failure.value = errorMessage(error);
+            failure.value = errorMessage(error, t('common.somethingWentWrong'));
         }
     } finally {
         loading.value = false;
@@ -46,24 +48,24 @@ async function submit() {
 </script>
 
 <template>
-    <GuestLayout title="Create an account" subtitle="It takes about ten seconds.">
+    <GuestLayout :title="t('auth.register.title')" :subtitle="t('auth.register.subtitle')">
         <form class="flex flex-col gap-4" novalidate @submit.prevent="submit">
             <AlertMessage :message="failure" variant="error" />
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="name">Name</InputLabel>
+                <InputLabel for="name">{{ t('auth.name') }}</InputLabel>
                 <TextInput id="name" v-model="form.name" autocomplete="name" :invalid="!!errors.name" />
                 <InputError :message="errors.name" />
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="email">Email</InputLabel>
+                <InputLabel for="email">{{ t('auth.email') }}</InputLabel>
                 <TextInput id="email" v-model="form.email" type="email" autocomplete="email" :invalid="!!errors.email" />
                 <InputError :message="errors.email" />
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="password">Password</InputLabel>
+                <InputLabel for="password">{{ t('auth.password') }}</InputLabel>
                 <TextInput
                     id="password"
                     v-model="form.password"
@@ -73,12 +75,12 @@ async function submit() {
                 />
                 <InputError :message="errors.password" />
                 <p class="text-xs text-neutral-500 dark:text-neutral-500">
-                    At least 8 characters, including a letter and a number.
+                    {{ t('auth.register.passwordHint') }}
                 </p>
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <InputLabel for="password_confirmation">Confirm password</InputLabel>
+                <InputLabel for="password_confirmation">{{ t('auth.confirmPassword') }}</InputLabel>
                 <TextInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
@@ -88,17 +90,17 @@ async function submit() {
             </div>
 
             <PrimaryButton :loading="loading">
-                {{ loading ? 'Creating account…' : 'Create account' }}
+                {{ loading ? t('auth.register.submitting') : t('auth.register.submit') }}
             </PrimaryButton>
         </form>
 
         <template #footer>
-            Already registered?
+            {{ t('auth.register.haveAccount') }}
             <RouterLink
                 :to="{ name: 'login' }"
                 class="text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
             >
-                Sign in
+                {{ t('auth.register.signIn') }}
             </RouterLink>
         </template>
     </GuestLayout>

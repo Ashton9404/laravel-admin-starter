@@ -1,0 +1,146 @@
+{
+    "app": {
+        "name": "Laravel Admin Starter"
+    },
+    "common": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving…",
+        "delete": "Delete",
+        "deleting": "Deleting…",
+        "edit": "Edit",
+        "loading": "Loading…",
+        "yes": "Yes",
+        "no": "No",
+        "language": "Language",
+        "somethingWentWrong": "Something went wrong. Please try again."
+    },
+    "notFound": {
+        "body": "This page does not exist.",
+        "back": "Back to dashboard"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "users": "Users",
+        "signOut": "Sign out",
+        "signingOut": "Signing out…"
+    },
+    "auth": {
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "name": "Name",
+        "login": {
+            "title": "Sign in",
+            "subtitle": "Welcome back.",
+            "submit": "Sign in",
+            "submitting": "Signing in…",
+            "remember": "Remember me",
+            "forgot": "Forgot password?",
+            "noAccount": "No account?",
+            "createOne": "Create one",
+            "verified": "Your email address has been verified. You can sign in now.",
+            "alreadyVerified": "That email address was already verified.",
+            "verificationExpired": "That verification link is no longer valid. Sign in and request a new one.",
+            "passwordReset": "Your password has been reset. Sign in with your new password."
+        },
+        "register": {
+            "title": "Create an account",
+            "subtitle": "It takes about ten seconds.",
+            "submit": "Create account",
+            "submitting": "Creating account…",
+            "passwordHint": "At least 8 characters, including a letter and a number.",
+            "haveAccount": "Already registered?",
+            "signIn": "Sign in"
+        },
+        "forgot": {
+            "title": "Forgot your password?",
+            "subtitle": "We'll email you a link to choose a new one.",
+            "submit": "Email password reset link",
+            "submitting": "Sending…",
+            "backToLogin": "Back to sign in"
+        },
+        "reset": {
+            "title": "Choose a new password",
+            "newPassword": "New password",
+            "confirmNewPassword": "Confirm new password",
+            "submit": "Reset password",
+            "missingToken": "This page needs the link from your password reset email."
+        },
+        "verify": {
+            "title": "Verify your email",
+            "subtitle": "We sent a verification link to {email}.",
+            "subtitleFallback": "your inbox",
+            "body": "Click the link in that email to finish setting up your account. If it never arrived, we can send another one.",
+            "resend": "Resend verification email",
+            "resending": "Sending…",
+            "throttled": "Too many requests. Please wait a minute and try again.",
+            "banner": "Your email address is not verified.",
+            "bannerAction": "Verify it now"
+        }
+    },
+    "dashboard": {
+        "welcome": "Welcome back, {name}.",
+        "signedInAs": "Signed in as {email}",
+        "loadFailed": "Could not load the dashboard.",
+        "noPermissionTitle": "Nothing to report",
+        "noPermissionBody": "Your account does not have the users.view permission, so the user statistics are hidden. Sign in as manager@example.com or admin@example.com to see them.",
+        "totalUsers": "Total users",
+        "verifiedEmails": "Verified emails",
+        "awaitingVerification": "Awaiting verification",
+        "newThisWeek": "New this week",
+        "lastSevenDays": "Last 7 days",
+        "shareOfAccounts": "{share}% of all accounts",
+        "signUpsPerDay": "Sign-ups per day",
+        "lastThirtyDays": "Last 30 days",
+        "signUps": "Sign-ups",
+        "usersByRole": "Users by role",
+        "usersByRoleHint": "Accounts per assigned role",
+        "recentSignUps": "Recent sign-ups",
+        "recentSignUpsHint": "The five newest accounts.",
+        "apiHandshake": "API handshake",
+        "viewAsTable": "View as table",
+        "hideTable": "Hide table",
+        "date": "Date"
+    },
+    "users": {
+        "title": "Users",
+        "count": "{count} account | {count} accounts",
+        "new": "New user",
+        "searchPlaceholder": "Search name or email",
+        "allRoles": "All roles",
+        "anyVerification": "Any verification",
+        "verified": "Verified",
+        "notVerified": "Not verified",
+        "sortNewest": "Newest first",
+        "sortName": "Name",
+        "sortEmail": "Email",
+        "columns": {
+            "name": "Name",
+            "roles": "Roles",
+            "verified": "Verified",
+            "joined": "Joined",
+            "actions": "Actions"
+        },
+        "empty": "No users match these filters.",
+        "loadFailed": "Could not load users.",
+        "deleteFailed": "Could not delete that user.",
+        "form": {
+            "createTitle": "New user",
+            "editTitle": "Edit user",
+            "emailChangeHint": "Changing this clears the email verification.",
+            "newPasswordOptional": "New password (optional)",
+            "roles": "Roles",
+            "adminOnly": "(administrators only)"
+        },
+        "deleteDialog": {
+            "title": "Delete user",
+            "body": "Permanently delete {name} ({email})? This cannot be undone."
+        },
+        "pagination": {
+            "showing": "Showing {from}–{to} of {total}",
+            "previous": "Previous",
+            "next": "Next"
+        }
+    }
+}

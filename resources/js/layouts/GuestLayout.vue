@@ -1,8 +1,13 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
+import LocaleSwitcher from '@/components/LocaleSwitcher.vue';
+
 defineProps({
     title: { type: String, required: true },
     subtitle: { type: String, default: '' },
 });
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -11,9 +16,13 @@ defineProps({
                dark:bg-neutral-950 dark:text-neutral-100"
     >
         <div class="w-full max-w-sm">
-            <p class="text-xs font-medium tracking-widest text-indigo-600 uppercase dark:text-indigo-400">
-                Laravel Admin Starter
-            </p>
+            <div class="flex items-start justify-between gap-4">
+                <p class="text-xs font-medium tracking-widest text-indigo-600 uppercase dark:text-indigo-400">
+                    {{ t('app.name') }}
+                </p>
+
+                <LocaleSwitcher />
+            </div>
 
             <h1 class="mt-2 text-2xl font-semibold tracking-tight">{{ title }}</h1>
 

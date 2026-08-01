@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
+import LocaleSwitcher from '@/components/LocaleSwitcher.vue';
 
 const auth = useAuthStore();
 const router = useRouter();
+const { t } = useI18n();
 const loggingOut = ref(false);
 
 async function logout() {
@@ -25,7 +28,7 @@ async function logout() {
             <nav class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3">
                 <div class="flex items-center gap-6">
                     <RouterLink :to="{ name: 'dashboard' }" class="text-sm font-semibold tracking-tight">
-                        Laravel Admin Starter
+                        {{ t('app.name') }}
                     </RouterLink>
 
                     <RouterLink
@@ -35,11 +38,13 @@ async function logout() {
                                dark:text-neutral-400 dark:hover:text-neutral-100"
                         active-class="text-neutral-900 dark:text-neutral-100"
                     >
-                        Users
+                        {{ t('nav.users') }}
                     </RouterLink>
                 </div>
 
                 <div class="flex items-center gap-4">
+                    <LocaleSwitcher />
+
                     <span class="hidden text-sm text-neutral-600 sm:inline dark:text-neutral-400">
                         {{ auth.user?.name }}
                     </span>
@@ -52,7 +57,7 @@ async function logout() {
                                dark:border-neutral-700 dark:hover:bg-neutral-800"
                         @click="logout"
                     >
-                        {{ loggingOut ? 'Signing out…' : 'Sign out' }}
+                        {{ loggingOut ? t('nav.signingOut') : t('nav.signOut') }}
                     </button>
                 </div>
             </nav>
@@ -63,9 +68,9 @@ async function logout() {
             class="border-b border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950"
         >
             <p class="mx-auto max-w-5xl px-6 py-2 text-sm text-amber-800 dark:text-amber-300">
-                Your email address is not verified.
+                {{ t('auth.verify.banner') }}
                 <RouterLink :to="{ name: 'verification.notice' }" class="underline underline-offset-4">
-                    Verify it now
+                    {{ t('auth.verify.bannerAction') }}
                 </RouterLink>
             </p>
         </div>

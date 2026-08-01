@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import axios, { errorMessage } from '@/bootstrap';
 import { useAuthStore } from '@/stores/auth';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -11,6 +12,7 @@ import TextInput from '@/components/TextInput.vue';
 import UserFormModal from '@/components/UserFormModal.vue';
 
 const auth = useAuthStore();
+const { t, locale } = useI18n();
 
 const users = ref([]);
 const meta = ref({ current_page: 1, last_page: 1, total: 0 });
@@ -32,11 +34,23 @@ const creating = ref(false);
 const deleting = ref(null);
 const deletingBusy = ref(false);
 
-const sortOptions = [
-    { value: 'created_at', label: 'Newest first' },
-    { value: 'name', label: 'Name' },
-    { value: 'email', label: 'Email' },
-];
+// Computed, not a constant: the labels have to re-render on a language switch.
+const sortOptions = computed(() => [
+    { value: 'created_at', label: t('users.sortNewest') },
+    { value: 'name', label: t('users.sortName') },
+    { value: 'email', label: t('users.sortEmail') },
+]);
+
+const roleOptions = computed(() => [
+    { value: '', label: t('users.allRoles') },
+    ...roles.value.map((role) => ({ value: role.name, label: role.label })),
+]);
+
+const verifiedOptions = computed(() => [
+    { value: '', label: t('users.anyVerification') },
+    { value: '1', label: t('users.verified') },
+    { value: '0', label: t('users.notVerified') },
+]);
 
 async function load() {
     loading.value = true;
@@ -53,7 +67,7 @@ async function load() {
         users.value = data.data;
         meta.value = data.meta;
     } catch (error) {
-        failure.value = errorMessage(error, 'Could not load users.');
+        failure.value = errorMessage(error, t('users.loadFailed'));
     } finally {
         loading.value = false;
     }
@@ -105,7 +119,7 @@ async function confirmDelete() {
         deleting.value = null;
         load();
     } catch (error) {
-        failure.value = errorMessage(error, 'Could not delete that user.');
+        failure.value = errorMessage(error, t('users.deleteFailed'));
         deleting.value = null;
     } finally {
         deletingBusy.value = false;
@@ -113,7 +127,7 @@ async function confirmDelete() {
 }
 
 function formatDate(iso) {
-    return iso ? new Date(iso).toLocaleDateString(undefined, { dateStyle: 'medium' }) : '—';
+    return iso ? new Date(iso).toLocaleDateString(locale.value, { dateStyle: 'medium' }) : '—';
 }
 </script>
 
@@ -122,9 +136,9 @@ function formatDate(iso) {
         <div class="flex flex-col gap-6">
             <header class="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-semibold tracking-tight">Users</h1>
+                    <h1 class="text-2xl font-semibold tracking-tight">{{ t('users.title') }}</h1>
                     <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                        {{ meta.total }} account{{ meta.total === 1 ? '' : 's' }}
+                        {{ t('users.count', meta.total, { count: meta.total }) }}
                     </p>
                 </div>
 
@@ -135,7 +149,7 @@ function formatDate(iso) {
                            hover:bg-indigo-500"
                     @click="creating = true"
                 >
-                    New user
+                    {{ t('users.new') }}
                 </button>
             </header>
 
@@ -143,24 +157,11 @@ function formatDate(iso) {
 
             <!-- One filter row above everything it scopes. -->
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <TextInput v-model="filters.search" placeholder="Search name or email" />
+                <TextInput v-model="filters.search" :placeholder="t('users.searchPlaceholder')" />
 
-                <SelectInput
-                    v-model="filters.role"
-                    :options="[
-                        { value: '', label: 'All roles' },
-                        ...roles.map((role) => ({ value: role.name, label: role.label })),
-                    ]"
-                />
+                <SelectInput v-model="filters.role" :options="roleOptions" />
 
-                <SelectInput
-                    v-model="filters.verified"
-                    :options="[
-                        { value: '', label: 'Any verification' },
-                        { value: '1', label: 'Verified' },
-                        { value: '0', label: 'Not verified' },
-                    ]"
-                />
+                <SelectInput v-model="filters.verified" :options="verifiedOptions" />
 
                 <SelectInput v-model="filters.sort" :options="sortOptions" />
             </div>
@@ -173,17 +174,19 @@ function formatDate(iso) {
                     <table class="w-full min-w-2xl text-sm">
                         <thead>
                             <tr class="border-b border-neutral-200 text-left text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-                                <th scope="col" class="px-5 py-3 font-medium">Name</th>
-                                <th scope="col" class="px-5 py-3 font-medium">Roles</th>
-                                <th scope="col" class="px-5 py-3 font-medium">Verified</th>
-                                <th scope="col" class="px-5 py-3 font-medium">Joined</th>
-                                <th scope="col" class="px-5 py-3 text-right font-medium">Actions</th>
+                                <th scope="col" class="px-5 py-3 font-medium">{{ t('users.columns.name') }}</th>
+                                <th scope="col" class="px-5 py-3 font-medium">{{ t('users.columns.roles') }}</th>
+                                <th scope="col" class="px-5 py-3 font-medium">{{ t('users.columns.verified') }}</th>
+                                <th scope="col" class="px-5 py-3 font-medium">{{ t('users.columns.joined') }}</th>
+                                <th scope="col" class="px-5 py-3 text-right font-medium">
+                                    {{ t('users.columns.actions') }}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="!loading && users.length === 0">
                                 <td colspan="5" class="px-5 py-8 text-center text-neutral-500 dark:text-neutral-400">
-                                    No users match these filters.
+                                    {{ t('users.empty') }}
                                 </td>
                             </tr>
 
@@ -203,9 +206,11 @@ function formatDate(iso) {
                                 </td>
                                 <td class="px-5 py-3">
                                     <span v-if="user.email_verified" class="text-[#006300] dark:text-[#0ca30c]">
-                                        ✓ Yes
+                                        ✓ {{ t('common.yes') }}
                                     </span>
-                                    <span v-else class="text-neutral-500 dark:text-neutral-400">✕ No</span>
+                                    <span v-else class="text-neutral-500 dark:text-neutral-400">
+                                        ✕ {{ t('common.no') }}
+                                    </span>
                                 </td>
                                 <td class="px-5 py-3 tabular-nums">{{ formatDate(user.created_at) }}</td>
                                 <td class="px-5 py-3">
@@ -216,7 +221,7 @@ function formatDate(iso) {
                                             class="text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
                                             @click="editing = user"
                                         >
-                                            Edit
+                                            {{ t('common.edit') }}
                                         </button>
 
                                         <button
@@ -225,7 +230,7 @@ function formatDate(iso) {
                                             class="text-[#d03b3b] underline underline-offset-4"
                                             @click="deleting = user"
                                         >
-                                            Delete
+                                            {{ t('common.delete') }}
                                         </button>
                                     </div>
                                 </td>
@@ -253,10 +258,9 @@ function formatDate(iso) {
             @saved="onSaved"
         />
 
-        <ModalDialog v-if="deleting" title="Delete user" @close="deleting = null">
+        <ModalDialog v-if="deleting" :title="t('users.deleteDialog.title')" @close="deleting = null">
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
-                Permanently delete <span class="font-medium">{{ deleting.name }}</span>
-                ({{ deleting.email }})? This cannot be undone.
+                {{ t('users.deleteDialog.body', { name: deleting.name, email: deleting.email }) }}
             </p>
 
             <div class="mt-6 flex justify-end gap-2">
@@ -266,7 +270,7 @@ function formatDate(iso) {
                            hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
                     @click="deleting = null"
                 >
-                    Cancel
+                    {{ t('common.cancel') }}
                 </button>
 
                 <button
@@ -276,7 +280,7 @@ function formatDate(iso) {
                            hover:opacity-90 disabled:opacity-60"
                     @click="confirmDelete"
                 >
-                    {{ deletingBusy ? 'Deleting…' : 'Delete' }}
+                    {{ deletingBusy ? t('common.deleting') : t('common.delete') }}
                 </button>
             </div>
         </ModalDialog>
