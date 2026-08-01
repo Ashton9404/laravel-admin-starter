@@ -2,9 +2,10 @@
 
 A professional open-source Laravel + Vue 3 admin starter template with RBAC, i18n (EN/繁中), and CMS module.
 
-> 🚧 **Work in progress.** See [docs/ROADMAP.zh-TW.md](docs/ROADMAP.zh-TW.md) for the feature
-> tracker. This README will be rewritten (with a `README.zh-TW.md` companion) once the
-> feature set is complete.
+> 🚧 **Work in progress.** The feature tracker and engineering notes live in
+> [docs/ROADMAP.md](docs/ROADMAP.md) — 繁體中文版:[docs/ROADMAP.zh-TW.md](docs/ROADMAP.zh-TW.md).
+> This README will be rewritten (with a `README.zh-TW.md` companion) once the feature set is
+> complete.
 
 ## Stack
 

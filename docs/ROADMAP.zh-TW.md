@@ -1,5 +1,7 @@
-# Laravel Admin Starter — Feature & Tech Tracker
+# Laravel Admin Starter — Feature & Tech Tracker(繁體中文)
 
+> **English: [ROADMAP.md](ROADMAP.md)** — 英文版為預設版本,這份是繁中對照版,兩份內容同步。
+>
 > 這份文件是專案的「單一事實來源」。每完成一個功能就更新對應狀態,
 > 最終這份文件的內容會被整理進 `README.md`(英文)與 `README.zh-TW.md`(繁中)。
 >
@@ -146,16 +148,6 @@
 - 備註: 2026-08-01 由使用者提出。原規劃的「CMS 文章模組」併入此模組,
   資料表設計相同,差別只在語意;若之後真的需要部落格文章再獨立拆出。
 
-### 11. 官網前台(公開頁面)
-
-- 狀態: ⬜
-- 內容: 不需登入即可瀏覽的產品列表 `/products` 與詳情頁 `/products/{slug}`,
-  排序直接吃後台設定的 `sort_order`,只顯示已發佈的產品
-- 技術: 公開 API(`GET /api/public/products`)、Vue Router 公開路由、SEO meta
-- 備註: 2026-08-01 追加。目的是讓後台的操作有地方「看得到結果」——
-  排序拖一拖、內容改一改,前台立刻反映,這樣這個專案在履歷與作品集上
-  才是一個「能實際運作的系統」,而不只是一堆管理表單。
-
 ### 8. 檔案管理模組
 
 - 狀態: ✅(2026-08-01 完成,測試累計 114 passed)
@@ -192,6 +184,16 @@
 - 內容: README.md(英文)、README.zh-TW.md(繁中)、Demo 帳號、Screenshots、Contribution Guide
 - 技術: Markdown、GitHub Actions(可選,CI badge)
 
+### 11. 官網前台(公開頁面)
+
+- 狀態: ⬜
+- 內容: 不需登入即可瀏覽的產品列表 `/products` 與詳情頁 `/products/{slug}`,
+  排序直接吃後台設定的 `sort_order`,只顯示已發佈的產品
+- 技術: 公開 API(`GET /api/public/products`)、Vue Router 公開路由、SEO meta
+- 備註: 2026-08-01 追加。目的是讓後台的操作有地方「看得到結果」——
+  排序拖一拖、內容改一改,前台立刻反映,這樣這個專案在履歷與作品集上
+  才是一個「能實際運作的系統」,而不只是一堆管理表單。
+
 ---
 
 ## 完整技術棧總覽(隨進度持續更新)
@@ -217,9 +219,15 @@
 - **2026-08-01**: 開發環境選擇 **Docker Desktop 全程容器化**(而非本機 XAMPP),理由是環境乾淨、
   貼近正式部署,且 Docker Compose 本身就是這個 starter 要展示的技術之一。
 - **2026-08-01**: Docker 資料碟從 C 槽搬到 `D:\DockerData`(C 槽只剩 60 GB)。
-  WSL2 後端的「Disk image location」只能從 GUI 改,而本機 GUI 無法啟動(見下方筆記),
-  故改用 NTFS junction:`%LOCALAPPDATA%\Docker\wsl` → `D:\DockerData\wsl`。
-  已實測 image pull 後 vhdx 在 D 槽長大,C 槽無殘留。
+  當時 GUI 無法啟動,而 WSL2 後端的「Disk image location」只能從 GUI 改,
+  故先用 NTFS junction 權宜處理。
+- **2026-08-02**: Docker Desktop GUI 的問題查出是**安裝模式**(使用者目錄 → 全機安裝),
+  重裝後恢復。資料碟改用官方支援的設定指到 `D:\DockerData\diskimage`,junction 撤掉。
+- **2026-08-02**: 後台版面從頂部橫向導覽改為**左側直向側邊欄**,語言切換與帳號操作移到右上角。
+  橫向導覽在項目變多時會擠成一排,側邊欄則是加一列的事;窄螢幕改成抽屜式。
+- **2026-08-02**: 文件改為**英文為預設**(`docs/ROADMAP.md`)、繁中為對照版
+  (`docs/ROADMAP.zh-TW.md`)。程式碼註解維持英文單一語言,不做雙語 ——
+  註解要跟著程式碼一起改,兩份語言遲早會不同步,而不同步的註解比沒有註解更糟。
 
 ---
 
@@ -248,6 +256,65 @@ regex 排除 `api|sanctum|storage|up`,避免把 API 與健康檢查也吃掉。
 **為什麼 MySQL 要設 healthcheck + `depends_on: condition: service_healthy`?**
 MySQL 容器「啟動」和「可連線」之間有數秒落差,沒有 healthcheck 的話
 第一次 `artisan migrate` 會隨機失敗。這是 Docker 新手最常踩的坑。
+
+### 筆記 2 — 認證系統
+
+**為什麼登入限流用「email + IP」複合金鑰?**
+只鎖 IP 的話,同一間公司 / 學校出口的所有人會被一個手殘的同事連坐;
+只鎖 email 的話,攻擊者可以拿一個 IP 去噴幾千組帳號而不受限。
+複合金鑰讓「針對單一帳號的暴力破解」被擋,又不影響其他人。
+
+**為什麼 Email 驗證路由不要求登入?**
+Laravel 預設的 `EmailVerificationRequest` 掛 `auth` 中介層。但驗證信是在
+**信箱**裡點開的,很可能開在另一個瀏覽器(手機收信、公司電腦註冊),
+那邊沒有 session,使用者就會看到 403 而一頭霧水。
+簽名連結本身已經包含 user id + email 的 sha1 且有效期 60 分鐘,
+「能拿到這個連結」就等於「能收到這個信箱的信」——這正是驗證要證明的事,
+所以拿掉 `auth` 不會降低安全性,只會少一個爛體驗。
+
+**測試踩雷:Sanctum 是看 `Referer` / `Origin`,不是看 host**
+`EnsureFrontendRequestsAreStateful` 用請求標頭裡的 Referer 或 Origin 去比對
+`config('sanctum.stateful')`,決定要不要掛上 session 中介層。
+瀏覽器一定會送這個標頭,但 PHPUnit 的測試客戶端不會,
+結果就是所有 `/api` 路由在測試裡沒有 session,
+`$request->session()->regenerate()` 直接噴 500 "Session store not set on request"。
+解法是在 `tests/TestCase.php` 統一補上 Referer 標頭(見該檔註解)。
+
+**測試踩雷:登出後要斷言 `assertGuest('web')` 而不是 `assertGuest()`**
+`auth:sanctum` 中介層驗證成功後會呼叫 `Auth::shouldUse('sanctum')`,
+把預設 guard 換掉。而 sanctum 這個 RequestGuard 會把解析出來的 user 快取在記憶體,
+所以就算 session 已經被 invalidate,不指定 guard 的 `assertGuest()` 還是會看到已登入。
+真正承載登入狀態的是 session,所以要斷言的是 `web` guard。
+
+**Docker Desktop GUI 打不開 ≠ Docker 壞掉**
+本機的 Docker Desktop 視窗一開就跳 "Unable to launch Docker Desktop",log 顯示 Electron 的
+GPU **與** renderer 子程序都以 `0xC0000005`(存取違規)崩潰。
+關鍵認知:**GUI 只是個 Electron 前端,引擎是獨立的**。`docker desktop start/stop`、
+`docker compose`、`docker exec` 全部照常運作,整個第 1–8 項功能都是在 GUI 壞掉的狀態下做完的。
+
+真正的原因是**安裝模式**:Docker Desktop 被裝在使用者目錄
+(`%LOCALAPPDATA%\Programs\DockerDesktop`)而不是 `C:\Program Files\Docker\Docker`。
+改成全機安裝後一次就好。
+
+排除過但**不是**原因的(留著避免重走):NVIDIA Overlay、OBS、GPU 驅動、`AppInit_DLLs`、
+Exploit Protection、第三方防毒、Defender 的 CFA / ASR / Smart App Control、Electron 快取,
+以及 `--disable-gpu` / `--disable-gpu-sandbox` / `--in-process-gpu` 三個旗標。
+
+過程中我自己犯的兩個錯,也記下來:第一次測 `--disable-gpu` 時只殺掉 UI 程序、
+留著 `com.docker.backend`,新的實例直接把控制權交還給舊實例,所以那次測試根本無效。
+另外我一度把原因歸結為「安裝檔壞掉」就停下來了 —— 那個結論不夠深,
+真正該問的是「**安裝到哪裡**」,而不是「安裝檔對不對」。
+
+**Docker 資料碟搬到 D 槽的正確做法**
+GUI 壞掉時我用 NTFS junction 硬搬(`settings-store.json` 裡的 `DataFolder` 對 WSL2 後端無效)。
+GUI 修好之後改用官方支援的設定 —— Settings → Resources → Disk image location,
+指到 `D:\DockerData\diskimage`,Docker 會自己在底下建 `DockerDesktopWSL`。
+junction 那條路能動,但它是「GUI 壞掉時的權宜之計」,不是推薦做法。
+
+**PHP 版本決策**
+Laravel 13 最低需求是 PHP 8.3,本機 XAMPP 是 8.2,因此另外裝了 PHP 8.4 到 `C:\php84`。
+注意 Windows 的 system PATH 排在 user PATH 前面,所以直接打 `php` 仍會是 XAMPP 的 8.2,
+執行 composer/artisan 前要先 `$env:Path = 'C:\php84;' + $env:Path`。
 
 ### 筆記 3 — RBAC
 
@@ -517,45 +584,3 @@ virtual DOM 搶控制權,元件卸載時容易殘留節點。
 
 安全性提醒:所見即所得編輯器的產出是使用者可控的 HTML,存進資料庫前
 **必須做 HTML 淨化**,否則後台就成了儲存型 XSS 的入口。
-
-### 筆記 2 — 認證系統
-
-**為什麼登入限流用「email + IP」複合金鑰?**
-只鎖 IP 的話,同一間公司 / 學校出口的所有人會被一個手殘的同事連坐;
-只鎖 email 的話,攻擊者可以拿一個 IP 去噴幾千組帳號而不受限。
-複合金鑰讓「針對單一帳號的暴力破解」被擋,又不影響其他人。
-
-**為什麼 Email 驗證路由不要求登入?**
-Laravel 預設的 `EmailVerificationRequest` 掛 `auth` 中介層。但驗證信是在
-**信箱**裡點開的,很可能開在另一個瀏覽器(手機收信、公司電腦註冊),
-那邊沒有 session,使用者就會看到 403 而一頭霧水。
-簽名連結本身已經包含 user id + email 的 sha1 且有效期 60 分鐘,
-「能拿到這個連結」就等於「能收到這個信箱的信」——這正是驗證要證明的事,
-所以拿掉 `auth` 不會降低安全性,只會少一個爛體驗。
-
-**測試踩雷:Sanctum 是看 `Referer` / `Origin`,不是看 host**
-`EnsureFrontendRequestsAreStateful` 用請求標頭裡的 Referer 或 Origin 去比對
-`config('sanctum.stateful')`,決定要不要掛上 session 中介層。
-瀏覽器一定會送這個標頭,但 PHPUnit 的測試客戶端不會,
-結果就是所有 `/api` 路由在測試裡沒有 session,
-`$request->session()->regenerate()` 直接噴 500 "Session store not set on request"。
-解法是在 `tests/TestCase.php` 統一補上 Referer 標頭(見該檔註解)。
-
-**測試踩雷:登出後要斷言 `assertGuest('web')` 而不是 `assertGuest()`**
-`auth:sanctum` 中介層驗證成功後會呼叫 `Auth::shouldUse('sanctum')`,
-把預設 guard 換掉。而 sanctum 這個 RequestGuard 會把解析出來的 user 快取在記憶體,
-所以就算 session 已經被 invalidate,不指定 guard 的 `assertGuest()` 還是會看到已登入。
-真正承載登入狀態的是 session,所以要斷言的是 `web` guard。
-
-**Docker Desktop GUI 打不開 ≠ Docker 壞掉**
-本機的 Docker Desktop 視窗一開就跳 "Unable to launch Docker Desktop",log 顯示是 Electron 的
-GPU 子程序以 `0xC0000005`(存取違規)崩潰。原因是機器上跑著 NVIDIA Overlay / MSI Afterburner /
-Wallpaper Engine 這類會注入 hook DLL 的 overlay 軟體,Chromium 的 GPU sandbox 對此極度敏感。
-關鍵認知:**GUI 只是個 Electron 前端,引擎是獨立的**。`docker desktop start/stop`、
-`docker compose`、`docker exec` 全部照常運作,日常開發完全不需要那個視窗。
-(`--disable-gpu` 無效,因為 `Docker Desktop.exe` 只是 Go 啟動器,不轉送參數給 Electron。)
-
-**PHP 版本決策**
-Laravel 13 最低需求是 PHP 8.3,本機 XAMPP 是 8.2,因此另外裝了 PHP 8.4 到 `C:\php84`。
-注意 Windows 的 system PATH 排在 user PATH 前面,所以直接打 `php` 仍會是 XAMPP 的 8.2,
-執行 composer/artisan 前要先 `$env:Path = 'C:\php84;' + $env:Path`。

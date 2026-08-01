@@ -25,6 +25,7 @@
         "media": "Media",
         "users": "Users",
         "activity": "Activity",
+        "menu": "Menu",
         "signOut": "Sign out",
         "signingOut": "Signing out…"
     },
