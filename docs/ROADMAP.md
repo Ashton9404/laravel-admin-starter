@@ -190,10 +190,23 @@ engineering note.
 
 ### 11. Public website
 
-- Status: ⬜
+- Status: ✅ (2026-08-02, 141 tests passing, browsed in both languages in a real browser)
 - Scope: a product list at `/products` and a detail page at `/products/{slug}`, readable without
   signing in, ordered by the `sort_order` the admin sets, published products only
 - Stack: public API (`GET /api/public/products`), public Vue Router routes, SEO meta
+- Delivered:
+
+  - **The admin panel moved to `/admin/*` and the public site took the root**, so products live at
+    the address anyone would expect and the URL says which side of the fence you are on
+  - `PublicProductController`, separate from the admin controller rather than a branch inside it
+  - `PublicProductResource` is an allow-list: slug, name, summary, cover, published date, and the
+    body on the detail page only. No id, no status, no sort_order
+  - A draft returns **404, byte for byte the same as a slug that never existed**
+  - `PublicLayout` with its own header and footer, the language switcher, and a way back into the
+    panel for signed-in staff
+  - The detail page renders the editor's HTML with `v-html`, which is safe only because it was
+    sanitised on write
+  - `usePageMeta` keeps the document title and meta description in step with the page
 - Note: added 2026-08-01. The point is to give the admin actions somewhere to *show up* — drag the
   order, edit the copy, and the public site reflects it immediately. That is what makes this a
   system that works rather than a pile of management forms.
@@ -595,6 +608,58 @@ so the sequence is stable.
 "What has already been recorded this request" has to live and die with the request. A static
 property outlives it — and since every test shares one PHP process, that state leaks from one test
 into the next. Registering it as a singleton rebuilds it naturally.
+
+### Note 11 — Public website
+
+**The admin panel had to move before the public site could exist**
+Both wanted `/products`, and the public one has the better claim: it is the address a visitor
+would guess, and the one that ends up in a search result. So the panel moved wholesale to
+`/admin/*`. That is more than cosmetic — the URL now states the boundary, and "everything under
+/admin needs an account" is a rule you can check by reading an address bar rather than by reading
+the router. Route names did not change, so nothing that links by name had to be touched.
+
+**Two controllers, not one with a public branch**
+`ProductController` exists to expose everything to whoever is authorised. `PublicProductController`
+exists to expose almost nothing to everyone. Those are opposite defaults, and folding them into one
+class is how a draft eventually reaches the public site — because a scope was applied in four
+places out of five and the fifth was added last Tuesday.
+
+**The public resource is an allow-list, and that decides which way mistakes fail**
+`PublicProductResource` names the fields it emits rather than hiding fields it does not want. Add a
+column later — an internal note, a cost price, a supplier — and it is invisible on the public site
+until somebody decides otherwise. The reverse arrangement leaks by default and only stops leaking
+when someone remembers.
+
+**A draft must 404, not 403**
+403 says "this exists and you may not see it", which is precisely the fact an unpublished product
+should not be handing out — competitors read URLs too. The test asserts the two responses are
+identical, with `app.debug` forced off so it compares what production actually sends. With debug on
+they differ by a stack trace line number, which is the test lying about a property that does hold.
+
+**`v-html` here is the payoff for sanitising on write**
+Rendering editor output as HTML on a page served to the public is the exact place a stored-XSS bug
+becomes everyone's problem. It is safe only because `App\Support\RichText` cleaned it on the way
+into the database, months before this page existed. That is the argument for sanitising on write in
+one sentence: the decision made at the entrance is what makes the exit safe, including exits nobody
+had thought of yet.
+
+**Switching language has to refetch, not re-render**
+The API returns the translation matching `Accept-Language`, so the product name lives in the
+response rather than in the front-end message catalogue. Changing locale therefore has to trigger a
+new request; a component that only re-rendered would keep showing the old language's copy under a
+newly translated heading, which looks like a caching bug and is really a data-flow one.
+
+**Being honest about SEO in a client-rendered SPA**
+`usePageMeta` sets the title and description, which fixes the browser tab, bookmarks and the
+crawlers that execute JavaScript. It does not make this server-rendered, and a crawler that does
+not run JS still sees an empty shell. Real SEO would need SSR or prerendering. Written down as a
+limitation rather than quietly presented as solved.
+
+**Typography written by hand instead of the typography plugin**
+The sanitiser's allow-list is 17 elements long, so the set of things the editor can produce is
+bounded and small. Every rule in the article stylesheet corresponds to something that can actually
+appear, which is a shorter list than a general-purpose plugin has to handle and does not need a
+dependency.
 
 ### Decision — why TipTap instead of Summernote
 

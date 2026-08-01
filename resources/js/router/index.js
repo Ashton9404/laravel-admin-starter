@@ -1,33 +1,56 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
+/**
+ * The public website owns the root, and the admin panel lives under /admin.
+ *
+ * That split is the reason products can sit at /products where anyone would
+ * expect them, and it makes the boundary legible in the URL: everything under
+ * /admin needs an account, everything above it does not.
+ */
 const routes = [
     {
         path: '/',
+        name: 'home',
+        component: () => import('@/pages/public/ProductList.vue'),
+    },
+    {
+        path: '/products',
+        name: 'public.products',
+        component: () => import('@/pages/public/ProductList.vue'),
+    },
+    {
+        path: '/products/:slug',
+        name: 'public.product',
+        component: () => import('@/pages/public/ProductDetail.vue'),
+        props: true,
+    },
+    {
+        path: '/admin',
         name: 'dashboard',
         component: () => import('@/pages/Dashboard.vue'),
         meta: { requiresAuth: true },
     },
     {
-        path: '/users',
+        path: '/admin/users',
         name: 'users.index',
         component: () => import('@/pages/users/UserIndex.vue'),
         meta: { requiresAuth: true, permission: 'users.view' },
     },
     {
-        path: '/products',
+        path: '/admin/products',
         name: 'products.index',
         component: () => import('@/pages/products/ProductIndex.vue'),
         meta: { requiresAuth: true, permission: 'products.view' },
     },
     {
-        path: '/media',
+        path: '/admin/media',
         name: 'media.index',
         component: () => import('@/pages/media/MediaLibrary.vue'),
         meta: { requiresAuth: true, permission: 'media.view' },
     },
     {
-        path: '/activity',
+        path: '/admin/activity',
         name: 'activity.index',
         component: () => import('@/pages/activity/ActivityLog.vue'),
         meta: { requiresAuth: true, permission: 'activity.view' },
@@ -72,6 +95,9 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    // Following a link should land at the top of the new page, not halfway down
+    // it because that is where the last one was scrolled to.
+    scrollBehavior: (to, from, saved) => saved ?? { top: 0 },
 });
 
 router.beforeEach(async (to) => {

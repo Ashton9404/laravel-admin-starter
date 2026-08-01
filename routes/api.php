@@ -6,6 +6,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductCoverController;
+use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Resources\UserResource;
 use App\Models\Permission;
@@ -23,6 +24,18 @@ Route::get('/ping', fn () => [
     'laravel' => 'Laravel '.Application::VERSION,
     'php' => PHP_VERSION,
 ]);
+
+/**
+ * The public website. No authentication, and deliberately declared before every
+ * guarded route so it is obvious at a glance which endpoints are open.
+ *
+ * SetLocale still runs here, so Accept-Language picks the translation an
+ * anonymous visitor sees.
+ */
+Route::prefix('public')->name('public.')->group(function () {
+    Route::get('products', [PublicProductController::class, 'index'])->name('products.index');
+    Route::get('products/{slug}', [PublicProductController::class, 'show'])->name('products.show');
+});
 
 Route::get('/user', fn (Request $request) => UserResource::make(
     $request->user()->load('roles.permissions')

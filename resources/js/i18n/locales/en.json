@@ -107,6 +107,21 @@
         "hideTable": "Hide table",
         "date": "Date"
     },
+    "public": {
+        "adminPanel": "Admin panel",
+        "footer": "Built with Laravel and Vue. This is the public side of the admin starter.",
+        "products": {
+            "title": "Products",
+            "subtitle": "Everything currently published, in the order the team arranged it.",
+            "empty": "No products have been published yet.",
+            "loadFailed": "Could not load the catalogue."
+        },
+        "product": {
+            "backToList": "All products",
+            "missingTitle": "Not found",
+            "missingBody": "This product is not available. It may have been unpublished or the address may be wrong."
+        }
+    },
     "activity": {
         "title": "Activity log",
         "subtitle": "Who did what, and when.",

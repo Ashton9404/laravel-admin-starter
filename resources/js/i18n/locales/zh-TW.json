@@ -107,6 +107,21 @@
         "hideTable": "隱藏表格",
         "date": "日期"
     },
+    "public": {
+        "adminPanel": "進入後台",
+        "footer": "以 Laravel 與 Vue 建置。這裡是後台範本的官網前台。",
+        "products": {
+            "title": "產品",
+            "subtitle": "所有已發佈的產品,依後台設定的順序排列。",
+            "empty": "目前還沒有已發佈的產品。",
+            "loadFailed": "無法載入產品列表。"
+        },
+        "product": {
+            "backToList": "所有產品",
+            "missingTitle": "找不到頁面",
+            "missingBody": "這個產品目前無法瀏覽,可能已經下架,或是網址有誤。"
+        }
+    },
     "activity": {
         "title": "操作紀錄",
         "subtitle": "誰在什麼時候做了什麼。",
