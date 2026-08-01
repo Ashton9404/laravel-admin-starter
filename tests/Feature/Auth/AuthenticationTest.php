@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
@@ -21,6 +24,26 @@ class AuthenticationTest extends TestCase
         ])->assertOk()->assertJsonPath('data.id', $user->id);
 
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_the_login_response_carries_roles_and_permissions(): void
+    {
+        $this->seed(RolePermissionSeeder::class);
+
+        $manager = User::factory()->withRole(Role::MANAGER)->create();
+
+        // The SPA decides what to render from this payload; if it arrives without
+        // permissions the UI is permission-blind until the next full page load.
+        $this->postJson('/api/login', [
+            'email' => $manager->email,
+            'password' => 'password',
+        ])->assertOk()
+            ->assertJsonPath('data.roles', [Role::MANAGER])
+            ->assertJsonPath('data.permissions', [
+                Permission::USERS_CREATE,
+                Permission::USERS_UPDATE,
+                Permission::USERS_VIEW,
+            ]);
     }
 
     public function test_users_cannot_authenticate_with_an_invalid_password(): void

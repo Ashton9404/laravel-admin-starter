@@ -28,7 +28,7 @@ class RegisteredUserController extends Controller
 
         $request->session()->regenerate();
 
-        return UserResource::make($user)
+        return UserResource::make($user->load('roles.permissions'))
             ->response()
             ->setStatusCode(201);
     }

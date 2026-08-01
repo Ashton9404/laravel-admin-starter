@@ -22,7 +22,10 @@ class AuthenticatedSessionController extends Controller
         // replayed by whoever may have planted it.
         $request->session()->regenerate();
 
-        return UserResource::make($request->user());
+        // Roles drive what the SPA renders, so they have to be in the very
+        // first response — otherwise the UI stays permission-blind until the
+        // next full page load refetches /api/user.
+        return UserResource::make($request->user()->load('roles.permissions'));
     }
 
     /**

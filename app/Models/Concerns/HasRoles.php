@@ -49,12 +49,16 @@ trait HasRoles
      */
     public function permissionNames(): Collection
     {
+        // Sorted so the API payload is stable: without it the order falls out of
+        // whatever the pivot join happens to return, which makes responses (and
+        // any test asserting on them) quietly non-deterministic.
         return $this->cachedPermissionNames ??= $this->roles
             ->loadMissing('permissions')
             ->pluck('permissions')
             ->flatten()
             ->pluck('name')
             ->unique()
+            ->sort()
             ->values();
     }
 

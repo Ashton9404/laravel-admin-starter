@@ -8,6 +8,15 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuthenticated = computed(() => user.value !== null);
     const isVerified = computed(() => user.value?.email_verified === true);
+    const isAdmin = computed(() => user.value?.roles?.includes('admin') === true);
+
+    /**
+     * Mirrors the server-side check so the UI can hide what the API would
+     * refuse anyway. This is presentation only — the API is the real gate.
+     */
+    function can(permission) {
+        return isAdmin.value || user.value?.permissions?.includes(permission) === true;
+    }
 
     /**
      * Resolve the session once on boot. A 401 here is the expected answer for a
@@ -80,6 +89,8 @@ export const useAuthStore = defineStore('auth', () => {
         initialised,
         isAuthenticated,
         isVerified,
+        isAdmin,
+        can,
         initialise,
         login,
         register,
