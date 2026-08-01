@@ -44,14 +44,26 @@ class UserPolicyTest extends TestCase
         $this->assertFalse($user->can('update', $other));
     }
 
-    public function test_the_policy_refuses_self_deletion(): void
+    public function test_even_an_admin_may_not_delete_themselves(): void
     {
         $admin = User::factory()->withRole(Role::ADMIN)->create();
 
-        // Asserted against the policy directly: Gate::before waves admins past
-        // every check, so $admin->can('delete', $admin) would answer true and
-        // never reach the rule being tested.
-        $this->assertFalse((new UserPolicy)->delete($admin, $admin));
+        // Goes through the real Gate, not the policy object: the admin bypass in
+        // Gate::before deliberately steps aside when the target is the actor, and
+        // that wiring is the thing worth protecting against regressions.
+        $this->assertFalse($admin->can('delete', $admin));
+        $this->assertTrue($admin->can('delete', User::factory()->create()));
+    }
+
+    public function test_an_admin_may_still_act_on_their_own_record_where_allowed(): void
+    {
+        $admin = User::factory()->withRole(Role::ADMIN)->create();
+
+        // Withholding the bypass hands the decision to UserPolicy, which permits
+        // both of these for the owner — so the narrower bypass must not turn
+        // admins into second-class citizens on their own account.
+        $this->assertTrue($admin->can('view', $admin));
+        $this->assertTrue($admin->can('update', $admin));
     }
 
     public function test_a_permitted_user_may_delete_someone_else(): void

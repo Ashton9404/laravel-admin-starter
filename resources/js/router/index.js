@@ -9,6 +9,12 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
+        path: '/users',
+        name: 'users.index',
+        component: () => import('@/pages/users/UserIndex.vue'),
+        meta: { requiresAuth: true, permission: 'users.view' },
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('@/pages/auth/Login.vue'),
@@ -62,6 +68,11 @@ router.beforeEach(async (to) => {
     }
 
     if (to.meta.guestOnly && auth.isAuthenticated) {
+        return { name: 'dashboard' };
+    }
+
+    // Cosmetic only — the API enforces the same rule and is the real gate.
+    if (to.meta.permission && !auth.can(to.meta.permission)) {
         return { name: 'dashboard' };
     }
 

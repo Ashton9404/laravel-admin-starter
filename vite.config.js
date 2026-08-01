@@ -41,6 +41,14 @@ export default defineConfig({
         },
         watch: {
             ignored: ['**/storage/framework/views/**'],
+            // The project is bind-mounted from a Windows (or macOS) host into a
+            // Linux container, and inotify events do not cross that boundary.
+            // Without polling the watcher never fires: HMR goes silent and Vite
+            // keeps serving modules from a transform cache it never invalidates,
+            // so edits appear to do nothing at all. Costs a little CPU; costs far
+            // less than the hour spent wondering why a save did nothing.
+            usePolling: true,
+            interval: 300,
         },
     },
 });

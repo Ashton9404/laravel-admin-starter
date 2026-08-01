@@ -99,9 +99,16 @@
 
 ### 5. 使用者管理 CRUD
 
-- 狀態: ⬜
+- 狀態: ✅(2026-08-01 完成,測試累計 68 passed,並用瀏覽器實際操作過)
 - 內容: 搜尋、分頁、篩選
 - 技術: Eloquent Query Builder、Vue 3 Composition API、Pinia
+- 實作:
+
+  - `apiResource('users')` 五條路由,授權全部走 `UserPolicy`
+  - 查詢:姓名/Email 模糊搜尋、角色篩選、驗證狀態篩選、排序、分頁
+  - 排序欄位白名單(`IndexUserRequest::SORTABLE`),避免 `orderBy` 注入
+  - **提權防護**:manager 有 `users.update`,若不擋就能把自己升成 admin
+  - 前端 `/users` 頁:防抖搜尋、三個篩選器、分頁、新增/編輯 Modal、刪除確認
 
 ### 6. 雙語系(UI)
 
@@ -253,6 +260,38 @@ Policy 回答的是「你有沒有資格碰**這一筆**資料」。
 而 `whenLoaded` 是條件輸出 —— 前端拿到的 user 沒有 permissions,
 要等重新整理走 `/api/user` 才正常。這種「單元測試全綠但實際壞掉」的洞,
 只有真的把畫面打開才看得到。修法是在登入/註冊回應一併 load,並補上測試。
+
+### 筆記 5 — 使用者管理 CRUD
+
+**最重要的一條:提權防護**
+manager 擁有 `users.update`。如果不特別處理,他可以送出
+`PATCH /api/users/{自己的 id}` 帶 `roles: ["admin"]`,一秒把自己升成管理員,
+接著 `Gate::before` 就會放行他做任何事。RBAC 做得再漂亮,漏掉這一刀就等於沒做。
+規則:**只有現任 admin 能授予或收回 admin 角色**,寫在 Store/UpdateUserRequest 的
+`withValidator()` 裡,新增與修改兩條路徑都擋。
+
+**`Gate::before` 的第二個坑:admin 可以刪自己**
+`UserPolicy::delete()` 寫了「任何人都不能刪除自己」,但 `Gate::before` 讓 admin
+無條件通過,那條規則對 admin 根本沒執行到 —— 而 admin 正是最不該被刪掉的帳號。
+修法是讓 bypass 在「操作對象就是操作者本人」時讓位,交還給 policy 判斷。
+這個 bug 是寫測試時才浮出來的,單看程式碼兩邊都「看起來對」。
+
+**授權要跑在驗證之前**
+Laravel 11+ 拿掉了控制器建構子的 middleware,`authorizeResource()` 不能用了,
+改用 `HasMiddleware` 介面宣告 `can:` 中介層。這不只是換寫法 —— 中介層跑在
+FormRequest 驗證**之前**,所以沒權限的人拿到的是乾脆的 403,
+而不是一串「你這個欄位格式不對」的 422,後者等於洩漏了他不該碰的資料結構。
+
+**排序欄位一定要白名單**
+`orderBy($request->input('sort'))` 會把字串直接串進 SQL。
+`IndexUserRequest` 用 `Rule::in(self::SORTABLE)` 限死三個欄位。
+
+**Windows + Docker 的 Vite 陷阱**
+改了 router 卻一直 404,查出來是容器裡的 Vite serve 著舊模組。
+Windows 主機的 bind mount **不會把 inotify 事件傳進 Linux 容器**,
+Vite 的檔案監看器從來沒被觸發,轉譯快取也永遠不失效 ——
+表現就是「存檔後畫面完全沒反應」。解法是 `server.watch.usePolling: true`。
+任何在 Windows/macOS 上用 Docker 跑 Vite 的人都會遇到,值得寫進 README。
 
 ### 選型決策 — 為什麼不用 Summernote,改用 TipTap
 

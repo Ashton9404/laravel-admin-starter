@@ -23,9 +23,21 @@ async function logout() {
     <div class="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <header class="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
             <nav class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3">
-                <RouterLink :to="{ name: 'dashboard' }" class="text-sm font-semibold tracking-tight">
-                    Laravel Admin Starter
-                </RouterLink>
+                <div class="flex items-center gap-6">
+                    <RouterLink :to="{ name: 'dashboard' }" class="text-sm font-semibold tracking-tight">
+                        Laravel Admin Starter
+                    </RouterLink>
+
+                    <RouterLink
+                        v-if="auth.can('users.view')"
+                        :to="{ name: 'users.index' }"
+                        class="text-sm text-neutral-600 transition hover:text-neutral-900
+                               dark:text-neutral-400 dark:hover:text-neutral-100"
+                        active-class="text-neutral-900 dark:text-neutral-100"
+                    >
+                        Users
+                    </RouterLink>
+                </div>
 
                 <div class="flex items-center gap-4">
                     <span class="hidden text-sm text-neutral-600 sm:inline dark:text-neutral-400">
