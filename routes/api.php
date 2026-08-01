@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Resources\UserResource;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,8 @@ Route::get('/ping', fn () => [
     'php' => PHP_VERSION,
 ]);
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::get('/user', fn (Request $request) => UserResource::make($request->user()))
+    ->middleware('auth:sanctum')
+    ->name('user');
+
+require __DIR__.'/auth.php';

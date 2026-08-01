@@ -50,46 +50,74 @@
   - `Cache::put/get` 走 Redis 成功(`store=redis`),phpredis 擴充已編進 image
 
 ### 2. 認證系統
-- 狀態: ⬜
-- 內容: 註冊、登入、忘記密碼、重設密碼、Email 驗證
-- 技術: Laravel Sanctum(SPA 模式)、Laravel Notifications(Email)
+
+- 狀態: ✅(2026-08-01 完成,26 個 Feature 測試全過 + 端對端實測)
+- 內容: 註冊、登入、登出、忘記密碼、重設密碼、Email 驗證
+- 技術: Laravel Sanctum(SPA cookie 模式)、Laravel Notifications、Pinia、Vue Router 導航守衛
+- API:
+
+  - `POST /api/register`(註冊即登入,並寄出驗證信)
+  - `POST /api/login`(email + IP 複合限流,5 次鎖定)
+  - `POST /api/logout`
+  - `POST /api/forgot-password`、`POST /api/reset-password`
+  - `GET /api/verify-email/{id}/{hash}`(簽名連結)、`POST /api/email/verification-notification`
+  - `GET /api/user`
+
+- 前端頁面: Login / Register / ForgotPassword / ResetPassword / VerifyEmail / Dashboard
+- 驗證結果(2026-08-01):
+
+  - `php artisan test` → 26 passed(69 assertions)
+  - 端對端: CSRF 交握 → 註冊 201 → `/api/user` 200 → 登出 200 → 登入 200 → 未登入 401
+  - 驗證信連結實際點擊後 `email_verified_at` 正確寫入
 
 ### 3. RBAC 權限系統
+
 - 狀態: ⬜
 - 內容: Admin / Manager / User 角色、users.view/create/update/delete 權限
 - 技術: Middleware、Policy、Gate、多對多關聯(roles ↔ permissions ↔ users)
 
 ### 4. Dashboard
+
 - 狀態: ⬜
 - 內容: 統計卡片、圖表、最近活動列表
 - 技術: Chart.js、Laravel API Resource
 
 ### 5. 使用者管理 CRUD
+
 - 狀態: ⬜
 - 內容: 搜尋、分頁、篩選
 - 技術: Eloquent Query Builder、Vue 3 Composition API、Pinia
 
 ### 6. 雙語系(UI)
+
 - 狀態: ⬜
 - 內容: EN / 中文切換、Navbar 語言選單、記憶語言偏好
 - 技術: vue-i18n、localStorage、users.locale 欄位同步
 
-### 7. CMS 文章模組
+### 7. 產品模組(官網內容管理)
+
 - 狀態: ⬜
-- 內容: 建立/編輯/刪除文章、草稿/發佈、多語系內容、封面圖上傳
-- 技術: articles + article_translations 資料表設計、檔案上傳
+- 內容: 後台新增 / 編輯 / 刪除產品、所見即所得(WYSIWYG)富文本內容、
+  封面圖與圖庫上傳、草稿 / 發佈、**拖曳決定官網顯示順序**、多語系內容
+- 技術: products + product_translations 資料表(含 `sort_order`)、
+  WYSIWYG 編輯器(選型待定,見下方筆記)、HTML 淨化、檔案上傳
+- 備註: 2026-08-01 由使用者提出。原規劃的「CMS 文章模組」併入此模組,
+  資料表設計相同,差別只在語意;若之後真的需要部落格文章再獨立拆出。
 
 ### 8. 檔案管理模組
+
 - 狀態: ⬜
 - 內容: 上傳、預覽、刪除
 - 技術: Laravel Filesystem、Vue 上傳元件
 
 ### 9. Activity Log
+
 - 狀態: ⬜
 - 內容: 登入紀錄、CRUD 操作紀錄
 - 技術: Polymorphic 關聯(subject_type / subject_id)
 
 ### 10. README 與開源文件
+
 - 狀態: ⬜
 - 內容: README.md(英文)、README.zh-TW.md(繁中)、Demo 帳號、Screenshots、Contribution Guide
 - 技術: Markdown、GitHub Actions(可選,CI badge)
@@ -99,7 +127,7 @@
 ## 完整技術棧總覽(隨進度持續更新)
 
 | 分類 | 技術 |
-|---|---|
+| --- | --- |
 | 後端框架 | Laravel 13, PHP 8.4 |
 | 前端框架 | Vue 3, Vite, Pinia, Axios, Tailwind CSS |
 | 認證 | Laravel Sanctum |
@@ -150,6 +178,35 @@ regex 排除 `api|sanctum|storage|up`,避免把 API 與健康檢查也吃掉。
 **為什麼 MySQL 要設 healthcheck + `depends_on: condition: service_healthy`?**
 MySQL 容器「啟動」和「可連線」之間有數秒落差,沒有 healthcheck 的話
 第一次 `artisan migrate` 會隨機失敗。這是 Docker 新手最常踩的坑。
+
+### 筆記 2 — 認證系統
+
+**為什麼登入限流用「email + IP」複合金鑰?**
+只鎖 IP 的話,同一間公司 / 學校出口的所有人會被一個手殘的同事連坐;
+只鎖 email 的話,攻擊者可以拿一個 IP 去噴幾千組帳號而不受限。
+複合金鑰讓「針對單一帳號的暴力破解」被擋,又不影響其他人。
+
+**為什麼 Email 驗證路由不要求登入?**
+Laravel 預設的 `EmailVerificationRequest` 掛 `auth` 中介層。但驗證信是在
+**信箱**裡點開的,很可能開在另一個瀏覽器(手機收信、公司電腦註冊),
+那邊沒有 session,使用者就會看到 403 而一頭霧水。
+簽名連結本身已經包含 user id + email 的 sha1 且有效期 60 分鐘,
+「能拿到這個連結」就等於「能收到這個信箱的信」——這正是驗證要證明的事,
+所以拿掉 `auth` 不會降低安全性,只會少一個爛體驗。
+
+**測試踩雷:Sanctum 是看 `Referer` / `Origin`,不是看 host**
+`EnsureFrontendRequestsAreStateful` 用請求標頭裡的 Referer 或 Origin 去比對
+`config('sanctum.stateful')`,決定要不要掛上 session 中介層。
+瀏覽器一定會送這個標頭,但 PHPUnit 的測試客戶端不會,
+結果就是所有 `/api` 路由在測試裡沒有 session,
+`$request->session()->regenerate()` 直接噴 500 "Session store not set on request"。
+解法是在 `tests/TestCase.php` 統一補上 Referer 標頭(見該檔註解)。
+
+**測試踩雷:登出後要斷言 `assertGuest('web')` 而不是 `assertGuest()`**
+`auth:sanctum` 中介層驗證成功後會呼叫 `Auth::shouldUse('sanctum')`,
+把預設 guard 換掉。而 sanctum 這個 RequestGuard 會把解析出來的 user 快取在記憶體,
+所以就算 session 已經被 invalidate,不指定 guard 的 `assertGuest()` 還是會看到已登入。
+真正承載登入狀態的是 session,所以要斷言的是 `web` guard。
 
 **Docker Desktop GUI 打不開 ≠ Docker 壞掉**
 本機的 Docker Desktop 視窗一開就跳 "Unable to launch Docker Desktop",log 顯示是 Electron 的

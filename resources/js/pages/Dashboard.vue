@@ -1,12 +1,16 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import axios from '@/bootstrap';
+import AppLayout from '@/layouts/AppLayout.vue';
 
+const auth = useAuthStore();
 const health = ref('checking…');
 
 const stack = [
     'Laravel 13',
     'PHP 8.4',
+    'Sanctum',
     'Vue 3',
     'Vite',
     'Pinia',
@@ -27,17 +31,18 @@ onMounted(async () => {
 </script>
 
 <template>
-    <main class="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
-        <div class="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-24">
-            <header class="flex flex-col gap-3">
-                <p class="text-sm font-medium uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-                    Laravel Admin Starter
+    <AppLayout>
+        <div class="flex flex-col gap-8">
+            <header class="flex flex-col gap-2">
+                <p class="text-sm font-medium tracking-widest text-indigo-600 uppercase dark:text-indigo-400">
+                    Dashboard
                 </p>
-                <h1 class="text-4xl font-semibold tracking-tight">
-                    The scaffolding is alive.
+                <h1 class="text-3xl font-semibold tracking-tight">
+                    Welcome back, {{ auth.user?.name }}.
                 </h1>
                 <p class="text-neutral-600 dark:text-neutral-400">
-                    Laravel serves the shell, Vue Router owns the URL, and Vite is hot-reloading this file.
+                    Signed in as {{ auth.user?.email }} · email
+                    {{ auth.isVerified ? 'verified' : 'not verified yet' }}.
                 </p>
             </header>
 
@@ -58,5 +63,5 @@ onMounted(async () => {
                 </span>
             </section>
         </div>
-    </main>
+    </AppLayout>
 </template>
