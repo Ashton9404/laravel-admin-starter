@@ -1,0 +1,272 @@
+{
+    "app": {
+        "name": "Laravel 後台範本"
+    },
+    "common": {
+        "cancel": "取消",
+        "save": "儲存",
+        "saving": "儲存中…",
+        "delete": "刪除",
+        "deleting": "刪除中…",
+        "edit": "編輯",
+        "loading": "載入中…",
+        "yes": "是",
+        "no": "否",
+        "language": "語言",
+        "somethingWentWrong": "發生錯誤,請再試一次。"
+    },
+    "notFound": {
+        "body": "這個頁面不存在。",
+        "back": "返回儀表板"
+    },
+    "nav": {
+        "dashboard": "儀表板",
+        "products": "產品",
+        "media": "媒體",
+        "users": "使用者",
+        "activity": "操作紀錄",
+        "menu": "選單",
+        "signOut": "登出",
+        "signingOut": "登出中…"
+    },
+    "auth": {
+        "email": "Email",
+        "password": "密碼",
+        "confirmPassword": "確認密碼",
+        "name": "名稱",
+        "login": {
+            "title": "登入",
+            "subtitle": "歡迎回來。",
+            "submit": "登入",
+            "submitting": "登入中…",
+            "remember": "記住我",
+            "forgot": "忘記密碼?",
+            "noAccount": "還沒有帳號?",
+            "createOne": "立即註冊",
+            "verified": "你的 Email 已驗證完成,現在可以登入了。",
+            "alreadyVerified": "這個 Email 先前就已經驗證過了。",
+            "verificationExpired": "這個驗證連結已失效,請登入後重新索取。",
+            "passwordReset": "密碼已重設,請用新密碼登入。"
+        },
+        "register": {
+            "title": "建立帳號",
+            "subtitle": "大約十秒就好。",
+            "submit": "建立帳號",
+            "submitting": "建立中…",
+            "passwordHint": "至少 8 個字元,且需包含英文字母與數字。",
+            "haveAccount": "已經有帳號了?",
+            "signIn": "登入"
+        },
+        "forgot": {
+            "title": "忘記密碼?",
+            "subtitle": "我們會寄一封重設連結給你。",
+            "submit": "寄送密碼重設連結",
+            "submitting": "寄送中…",
+            "backToLogin": "返回登入"
+        },
+        "reset": {
+            "title": "設定新密碼",
+            "newPassword": "新密碼",
+            "confirmNewPassword": "確認新密碼",
+            "submit": "重設密碼",
+            "missingToken": "這個頁面需要從密碼重設信件中的連結進入。"
+        },
+        "verify": {
+            "title": "驗證你的 Email",
+            "subtitle": "我們已寄出驗證連結到 {email}。",
+            "subtitleFallback": "你的信箱",
+            "body": "點擊信中的連結即可完成帳號設定。如果一直沒收到,我們可以再寄一次。",
+            "resend": "重寄驗證信",
+            "resending": "寄送中…",
+            "throttled": "請求次數過多,請稍待一分鐘後再試。",
+            "banner": "你的 Email 尚未驗證。",
+            "bannerAction": "立即驗證"
+        }
+    },
+    "dashboard": {
+        "welcome": "歡迎回來,{name}。",
+        "signedInAs": "目前登入身分:{email}",
+        "loadFailed": "無法載入儀表板。",
+        "noPermissionTitle": "目前沒有可顯示的內容",
+        "noPermissionBody": "你的帳號沒有 users.view 權限,因此使用者統計被隱藏。可改用 manager@example.com 或 admin@example.com 登入查看。",
+        "totalUsers": "使用者總數",
+        "verifiedEmails": "已驗證 Email",
+        "awaitingVerification": "待驗證",
+        "newThisWeek": "本週新增",
+        "lastSevenDays": "最近 7 天",
+        "shareOfAccounts": "佔全部帳號 {share}%",
+        "signUpsPerDay": "每日註冊數",
+        "lastThirtyDays": "最近 30 天",
+        "signUps": "註冊數",
+        "usersByRole": "角色分佈",
+        "usersByRoleHint": "各角色的帳號數量",
+        "recentSignUps": "最近註冊",
+        "recentSignUpsHint": "最新的五個帳號。",
+        "apiHandshake": "API 連線測試",
+        "viewAsTable": "以表格檢視",
+        "hideTable": "隱藏表格",
+        "date": "日期"
+    },
+    "public": {
+        "adminPanel": "進入後台",
+        "footer": "以 Laravel 與 Vue 建置。這裡是後台範本的官網前台。",
+        "products": {
+            "title": "產品",
+            "subtitle": "所有已發佈的產品,依後台設定的順序排列。",
+            "empty": "目前還沒有已發佈的產品。",
+            "loadFailed": "無法載入產品列表。"
+        },
+        "product": {
+            "backToList": "所有產品",
+            "missingTitle": "找不到頁面",
+            "missingBody": "這個產品目前無法瀏覽,可能已經下架,或是網址有誤。"
+        }
+    },
+    "activity": {
+        "title": "操作紀錄",
+        "subtitle": "誰在什麼時候做了什麼。",
+        "recentTitle": "最近的操作",
+        "recentHint": "最新的八筆紀錄。",
+        "viewAll": "查看全部",
+        "empty": "目前還沒有任何紀錄。",
+        "loadFailed": "無法載入操作紀錄。",
+        "allEvents": "所有事件",
+        "allTypes": "所有類型",
+        "someone": "某人",
+        "aRecord": "某筆資料",
+        "changedFields": "異動欄位:{fields}",
+        "labels": {
+            "created": "新增",
+            "updated": "編輯",
+            "deleted": "刪除",
+            "login": "登入",
+            "logout": "登出",
+            "login_failed": "登入失敗",
+            "reordered": "排序"
+        },
+        "types": {
+            "user": "使用者",
+            "product": "產品",
+            "media": "檔案"
+        },
+        "events": {
+            "created": "{causer} 新增了 {subject}",
+            "updated": "{causer} 編輯了 {subject}",
+            "deleted": "{causer} 刪除了 {subject}",
+            "login": "{causer} 登入",
+            "logout": "{causer} 登出",
+            "login_failed": "有人嘗試以 {email} 登入但失敗",
+            "reordered": "{causer} 調整了產品排序(共 {count} 筆)"
+        }
+    },
+    "media": {
+        "title": "媒體",
+        "subtitle": "共 {total} 個檔案",
+        "upload": "上傳",
+        "uploading": "上傳中…",
+        "searchPlaceholder": "以檔名搜尋",
+        "empty": "還沒有任何圖片。",
+        "dropHint": "把檔案拖曳到這裡,或使用上傳按鈕。",
+        "copyUrl": "複製網址",
+        "copied": "已複製",
+        "picker": {
+            "title": "選擇圖片"
+        },
+        "deleteDialog": {
+            "title": "刪除檔案",
+            "body": "確定要永久刪除「{name}」嗎?已經使用這個檔案的地方會失效。"
+        }
+    },
+    "products": {
+        "title": "產品",
+        "subtitle": "拖曳即可決定產品在官網上的顯示順序。",
+        "new": "新增產品",
+        "searchPlaceholder": "搜尋名稱或網址代稱",
+        "allStatuses": "所有狀態",
+        "empty": "還沒有任何產品。",
+        "loadFailed": "無法載入產品清單。",
+        "deleteFailed": "無法刪除該產品。",
+        "reorderFailed": "無法儲存新的排序。",
+        "dragHint": "拖曳左側握把可調整順序",
+        "reorderHint": "清除篩選條件才能排序",
+        "savingOrder": "排序儲存中…",
+        "orderSaved": "排序已儲存",
+        "status": {
+            "draft": "草稿",
+            "published": "已發佈"
+        },
+        "form": {
+            "createTitle": "新增產品",
+            "editTitle": "編輯產品",
+            "slug": "網址代稱",
+            "slugHint": "僅限小寫英文、數字與連字號,會出現在官網網址中。",
+            "status": "狀態",
+            "name": "名稱",
+            "summary": "簡短摘要",
+            "body": "詳細內容",
+            "cover": "封面圖",
+            "noCover": "尚無圖片",
+            "removeCover": "移除圖片",
+            "coverAfterSave": "產品儲存後即可上傳封面圖。"
+        },
+        "editor": {
+            "bold": "粗體",
+            "italic": "斜體",
+            "strike": "刪除線",
+            "bulletList": "項目符號清單",
+            "orderedList": "編號清單",
+            "quote": "引用",
+            "code": "程式碼區塊",
+            "link": "連結",
+            "image": "圖片",
+            "undo": "復原",
+            "redo": "重做",
+            "linkPrompt": "連結網址(留空可移除連結)",
+            "imagePrompt": "圖片網址"
+        },
+        "deleteDialog": {
+            "title": "刪除產品",
+            "body": "確定要永久刪除「{name}」嗎?此操作無法復原。"
+        }
+    },
+    "users": {
+        "title": "使用者",
+        "count": "{count} 個帳號",
+        "new": "新增使用者",
+        "searchPlaceholder": "搜尋名稱或 Email",
+        "allRoles": "所有角色",
+        "anyVerification": "所有驗證狀態",
+        "verified": "已驗證",
+        "notVerified": "未驗證",
+        "sortNewest": "最新優先",
+        "sortName": "名稱",
+        "sortEmail": "Email",
+        "columns": {
+            "name": "名稱",
+            "roles": "角色",
+            "verified": "已驗證",
+            "joined": "加入時間",
+            "actions": "操作"
+        },
+        "empty": "沒有符合條件的使用者。",
+        "loadFailed": "無法載入使用者清單。",
+        "deleteFailed": "無法刪除該使用者。",
+        "form": {
+            "createTitle": "新增使用者",
+            "editTitle": "編輯使用者",
+            "emailChangeHint": "變更 Email 會清除既有的驗證狀態。",
+            "newPasswordOptional": "新密碼(選填)",
+            "roles": "角色",
+            "adminOnly": "(僅限管理員)"
+        },
+        "deleteDialog": {
+            "title": "刪除使用者",
+            "body": "確定要永久刪除 {name}({email})嗎?此操作無法復原。"
+        },
+        "pagination": {
+            "showing": "顯示第 {from}–{to} 筆,共 {total} 筆",
+            "previous": "上一頁",
+            "next": "下一頁"
+        }
+    }
+}
