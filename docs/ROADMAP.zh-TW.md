@@ -180,9 +180,18 @@
 
 ### 10. README 與開源文件
 
-- 狀態: ⬜
+- 狀態: ✅(2026-08-02 完成)
 - 內容: README.md(英文)、README.zh-TW.md(繁中)、Demo 帳號、Screenshots、Contribution Guide
 - 技術: Markdown、GitHub Actions(可選,CI badge)
+- 實作:
+
+  - `README.md` 與 `README.zh-TW.md` 互相連結,英文為主
+  - `docs/screenshots/` 五張截圖,全部取自實際運行的畫面
+  - `DemoContentSeeder`:六筆雙語產品,其中一筆刻意留成草稿,
+    這樣「後台看得到、官網看不到」不必動任何設定就看得出來
+  - `CONTRIBUTING.md`,含三項「動手前先開 issue 討論」的變更
+  - **已知限制**章節:沒有 SSR、還沒有原始 HTML 編輯、佇列同步執行、Vite 用輪詢。
+    寫清楚,而不是留給別人自己踩到
 
 ### 11. 官網前台(公開頁面)
 

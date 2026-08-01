@@ -184,9 +184,18 @@ engineering note.
 
 ### 10. README and open-source docs
 
-- Status: ⬜
+- Status: ✅ (2026-08-02)
 - Scope: `README.md` (English), `README.zh-TW.md` (Traditional Chinese), demo accounts, screenshots, contribution guide
 - Stack: Markdown, GitHub Actions (optional, CI badge)
+- Delivered:
+
+  - `README.md` and `README.zh-TW.md`, cross-linked, English primary
+  - Five screenshots in `docs/screenshots/`, captured from the running application
+  - `DemoContentSeeder`: six bilingual products, one deliberately left as a draft so the
+    difference between the panel and the public site is visible without changing anything
+  - `CONTRIBUTING.md`, including the three changes that need a conversation before a pull request
+  - A **known limitations** section: no SSR, no raw HTML editing yet, synchronous queues, Vite
+    polling. Stated rather than left for someone to discover
 
 ### 11. Public website
 

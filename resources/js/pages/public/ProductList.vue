@@ -77,11 +77,17 @@ watch(locale, () => load(meta.value.current_page ?? 1));
                             :alt="product.name"
                             class="h-44 w-full object-cover"
                         />
+                        <!-- A product without a cover gets its initial rather
+                             than an empty grey rectangle, which reads as a
+                             broken image instead of a deliberate absence. -->
                         <div
                             v-else
-                            class="h-44 w-full bg-neutral-100 dark:bg-neutral-900"
+                            class="flex h-44 w-full items-center justify-center bg-neutral-100 text-5xl
+                                   font-semibold text-neutral-300 dark:bg-neutral-900 dark:text-neutral-700"
                             aria-hidden="true"
-                        />
+                        >
+                            {{ (product.name ?? '?').charAt(0) }}
+                        </div>
 
                         <div class="flex flex-1 flex-col gap-2 p-5">
                             <h2 class="font-medium group-hover:underline underline-offset-4">
