@@ -15,6 +15,12 @@ const routes = [
         meta: { requiresAuth: true, permission: 'users.view' },
     },
     {
+        path: '/products',
+        name: 'products.index',
+        component: () => import('@/pages/products/ProductIndex.vue'),
+        meta: { requiresAuth: true, permission: 'products.view' },
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('@/pages/auth/Login.vue'),

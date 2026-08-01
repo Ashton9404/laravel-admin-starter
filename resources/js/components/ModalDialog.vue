@@ -3,6 +3,8 @@ import { onBeforeUnmount, onMounted } from 'vue';
 
 defineProps({
     title: { type: String, required: true },
+    // A rich-text editor needs far more room than a four-field form.
+    wide: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['close']);
@@ -29,8 +31,9 @@ onBeforeUnmount(() => {
         <div class="absolute inset-0 bg-black/50" @click="emit('close')" />
 
         <div
-            class="relative w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-xl
-                   dark:border-neutral-800 dark:bg-neutral-900"
+            class="relative max-h-[90vh] w-full overflow-y-auto rounded-xl border border-neutral-200 bg-white p-6
+                   shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
+            :class="wide ? 'max-w-3xl' : 'max-w-md'"
             role="dialog"
             aria-modal="true"
         >

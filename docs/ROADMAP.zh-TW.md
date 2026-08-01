@@ -125,7 +125,16 @@
 
 ### 7. 產品模組(官網內容管理)
 
-- 狀態: ⬜
+- 狀態: ✅(2026-08-01 完成,測試累計 101 passed,並在瀏覽器實際建立產品驗證)
+- 實作:
+
+  - `products` + `product_translations` 兩張表,翻譯分表所以新增語言不用改結構
+  - `apiResource('products')` + `POST /api/products/reorder` + 封面圖上傳/移除
+  - `products.view/create/update/delete` 四個權限,manager 全部擁有
+  - **HTML 淨化**:`App\Support\RichText` 白名單機制,寫入時淨化
+  - TipTap 編輯器(粗體/斜體/刪除線/H2–H4/清單/引用/程式碼/連結/圖片/復原重做)
+  - vuedraggable 拖曳排序,位置由陣列索引推導而非信任前端
+  - 語言分頁式編輯,未填寫的語言有 • 標記;建立時自動從名稱產生 slug
 - 內容: 後台新增 / 編輯 / 刪除產品、所見即所得(WYSIWYG)富文本內容、
   封面圖與圖庫上傳、草稿 / 發佈、**拖曳決定官網顯示順序**、多語系內容
 - 技術: products + product_translations 資料表(含 `sort_order`)、
@@ -327,6 +336,39 @@ Vite 的檔案監看器從來沒被觸發,轉譯快取也永遠不失效 ——
 在 Windows bind mount 上等於自殺。必須同時設 `watch.ignored` 把
 `vendor` / `node_modules` / `storage` / `.git` 排除掉。
 「開了 polling」和「開對 polling」是兩件事。
+
+### 筆記 7 — 產品模組
+
+**淨化要做在「寫入時」而不是「輸出時」**
+兩種做法都能擋 XSS,但寫入時淨化讓資料庫裡永遠只有安全的 HTML ——
+之後任何一個忘記轉義的模板都復活不了那個漏洞。輸出時淨化則是每個渲染點
+都要記得做,漏一個就破功。代價是原始輸入不可回復,但所見即所得的內容
+本來就沒有保留惡意標記的理由。
+
+**編輯器白名單與後端白名單必須對齊**
+`RichText::ALLOWED` 允許 h2–h4,所以 TipTap 的 `heading.levels` 也設 `[2,3,4]`;
+白名單沒有 `<u>`,所以 StarterKit 的 `underline` 直接關掉。
+不對齊的後果是使用者辛苦排版完、按下儲存,格式無聲無息消失 ——
+這種 bug 使用者不會回報,只會覺得「這個編輯器很爛」。
+
+**排序位置由後端從陣列索引推導**
+前端送的是「新的 id 順序」,不是「每個 id 的新位置」。
+後端用 `foreach ($ids as $position => $id)` 寫入,所以結果必然是
+0,1,2,… 連續無重複,前端再怎麼送都不可能寫出有洞的序列。
+
+**篩選中不允許拖曳**
+在「只顯示已發佈」的畫面裡把第 3 筆拖到第 1 筆,寫進去的位置會忽略所有
+被隱藏的草稿,實際順序就亂了。所以有篩選條件時直接停用拖曳並說明原因。
+
+**查詢的 OR 一定要分組**
+`whereHas(...)->orWhere(...)` 不包在 `where(fn ...)` 裡的話,
+`status = 'published' AND EXISTS(name) OR slug LIKE ...` 的優先序會讓草稿
+從 status 篩選旁邊溜過去。已寫了一個專門的回歸測試守住這條。
+
+**`#[Fillable]` 會靜靜吃掉外鍵**
+`ProductTranslation::create(['product_id' => ...])` 在 product_id 不在
+fillable 名單時不會報錯,只會把它丟掉,然後在資料庫層炸 NOT NULL。
+要用 `$product->translations()->create([...])` 讓 Eloquent 自己帶外鍵。
 
 ### 選型決策 — 為什麼不用 Summernote,改用 TipTap
 

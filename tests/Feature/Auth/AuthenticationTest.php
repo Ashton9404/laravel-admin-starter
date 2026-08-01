@@ -34,16 +34,21 @@ class AuthenticationTest extends TestCase
 
         // The SPA decides what to render from this payload; if it arrives without
         // permissions the UI is permission-blind until the next full page load.
-        $this->postJson('/api/login', [
+        $response = $this->postJson('/api/login', [
             'email' => $manager->email,
             'password' => 'password',
-        ])->assertOk()
-            ->assertJsonPath('data.roles', [Role::MANAGER])
-            ->assertJsonPath('data.permissions', [
-                Permission::USERS_CREATE,
-                Permission::USERS_UPDATE,
-                Permission::USERS_VIEW,
-            ]);
+        ])->assertOk()->assertJsonPath('data.roles', [Role::MANAGER]);
+
+        // Asserted as a subset, not an exact list: the point is that permissions
+        // arrive with the login response at all, and pinning the whole catalogue
+        // here would break every time a new module adds one.
+        $permissions = $response->json('data.permissions');
+
+        foreach ([Permission::USERS_VIEW, Permission::USERS_CREATE, Permission::USERS_UPDATE] as $expected) {
+            $this->assertContains($expected, $permissions);
+        }
+
+        $this->assertNotContains(Permission::USERS_DELETE, $permissions);
     }
 
     public function test_users_cannot_authenticate_with_an_invalid_password(): void

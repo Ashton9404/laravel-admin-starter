@@ -16,6 +16,10 @@ class RolePermissionSeeder extends Seeder
         Permission::USERS_CREATE => 'Create users',
         Permission::USERS_UPDATE => 'Update users',
         Permission::USERS_DELETE => 'Delete users',
+        Permission::PRODUCTS_VIEW => 'View products',
+        Permission::PRODUCTS_CREATE => 'Create products',
+        Permission::PRODUCTS_UPDATE => 'Update products',
+        Permission::PRODUCTS_DELETE => 'Delete products',
     ];
 
     /**
@@ -27,10 +31,16 @@ class RolePermissionSeeder extends Seeder
      */
     private const ROLES = [
         Role::ADMIN => [],
+        // Managers own the content: full control over products, but deleting
+        // user accounts stays with administrators.
         Role::MANAGER => [
             Permission::USERS_VIEW,
             Permission::USERS_CREATE,
             Permission::USERS_UPDATE,
+            Permission::PRODUCTS_VIEW,
+            Permission::PRODUCTS_CREATE,
+            Permission::PRODUCTS_UPDATE,
+            Permission::PRODUCTS_DELETE,
         ],
         Role::USER => [],
     ];

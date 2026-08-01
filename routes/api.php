@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductCoverController;
 use App\Http\Controllers\UserController;
 use App\Http\Resources\UserResource;
 use App\Models\Permission;
@@ -31,6 +33,17 @@ Route::get('/dashboard', DashboardController::class)
 // No permission middleware here: UserPolicy decides per action and per record,
 // which is what lets a user edit their own profile without users.update.
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Declared before the resource so "reorder" is not swallowed by the
+    // {product} wildcard on /api/products/{product}.
+    Route::post('products/reorder', [ProductController::class, 'reorder'])->name('products.reorder');
+
+    Route::post('products/{product}/cover', [ProductCoverController::class, 'store'])->name('products.cover.store');
+    Route::delete('products/{product}/cover', [ProductCoverController::class, 'destroy'])->name('products.cover.destroy');
+
+    Route::apiResource('products', ProductController::class);
+});
 
 Route::put('/user/locale', [LocaleController::class, 'update'])
     ->middleware('auth:sanctum')

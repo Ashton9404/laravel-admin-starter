@@ -17,6 +17,14 @@ class Permission extends Model
 
     public const USERS_DELETE = 'users.delete';
 
+    public const PRODUCTS_VIEW = 'products.view';
+
+    public const PRODUCTS_CREATE = 'products.create';
+
+    public const PRODUCTS_UPDATE = 'products.update';
+
+    public const PRODUCTS_DELETE = 'products.delete';
+
     /**
      * @return BelongsToMany<Role, $this>
      */

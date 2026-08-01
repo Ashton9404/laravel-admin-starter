@@ -21,6 +21,7 @@
     },
     "nav": {
         "dashboard": "儀表板",
+        "products": "產品",
         "users": "使用者",
         "signOut": "登出",
         "signingOut": "登出中…"
@@ -102,6 +103,58 @@
         "viewAsTable": "以表格檢視",
         "hideTable": "隱藏表格",
         "date": "日期"
+    },
+    "products": {
+        "title": "產品",
+        "subtitle": "拖曳即可決定產品在官網上的顯示順序。",
+        "new": "新增產品",
+        "searchPlaceholder": "搜尋名稱或網址代稱",
+        "allStatuses": "所有狀態",
+        "empty": "還沒有任何產品。",
+        "loadFailed": "無法載入產品清單。",
+        "deleteFailed": "無法刪除該產品。",
+        "reorderFailed": "無法儲存新的排序。",
+        "dragHint": "拖曳左側握把可調整順序",
+        "reorderHint": "清除篩選條件才能排序",
+        "savingOrder": "排序儲存中…",
+        "orderSaved": "排序已儲存",
+        "status": {
+            "draft": "草稿",
+            "published": "已發佈"
+        },
+        "form": {
+            "createTitle": "新增產品",
+            "editTitle": "編輯產品",
+            "slug": "網址代稱",
+            "slugHint": "僅限小寫英文、數字與連字號,會出現在官網網址中。",
+            "status": "狀態",
+            "name": "名稱",
+            "summary": "簡短摘要",
+            "body": "詳細內容",
+            "cover": "封面圖",
+            "noCover": "尚無圖片",
+            "removeCover": "移除圖片",
+            "coverAfterSave": "產品儲存後即可上傳封面圖。"
+        },
+        "editor": {
+            "bold": "粗體",
+            "italic": "斜體",
+            "strike": "刪除線",
+            "bulletList": "項目符號清單",
+            "orderedList": "編號清單",
+            "quote": "引用",
+            "code": "程式碼區塊",
+            "link": "連結",
+            "image": "圖片",
+            "undo": "復原",
+            "redo": "重做",
+            "linkPrompt": "連結網址(留空可移除連結)",
+            "imagePrompt": "圖片網址"
+        },
+        "deleteDialog": {
+            "title": "刪除產品",
+            "body": "確定要永久刪除「{name}」嗎?此操作無法復原。"
+        }
     },
     "users": {
         "title": "使用者",

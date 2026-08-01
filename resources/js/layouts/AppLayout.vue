@@ -32,6 +32,16 @@ async function logout() {
                     </RouterLink>
 
                     <RouterLink
+                        v-if="auth.can('products.view')"
+                        :to="{ name: 'products.index' }"
+                        class="text-sm text-neutral-600 transition hover:text-neutral-900
+                               dark:text-neutral-400 dark:hover:text-neutral-100"
+                        active-class="text-neutral-900 dark:text-neutral-100"
+                    >
+                        {{ t('nav.products') }}
+                    </RouterLink>
+
+                    <RouterLink
                         v-if="auth.can('users.view')"
                         :to="{ name: 'users.index' }"
                         class="text-sm text-neutral-600 transition hover:text-neutral-900

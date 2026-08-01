@@ -21,6 +21,7 @@
     },
     "nav": {
         "dashboard": "Dashboard",
+        "products": "Products",
         "users": "Users",
         "signOut": "Sign out",
         "signingOut": "Signing out…"
@@ -102,6 +103,58 @@
         "viewAsTable": "View as table",
         "hideTable": "Hide table",
         "date": "Date"
+    },
+    "products": {
+        "title": "Products",
+        "subtitle": "Drag to set the order they appear on the public site.",
+        "new": "New product",
+        "searchPlaceholder": "Search name or slug",
+        "allStatuses": "All statuses",
+        "empty": "No products yet.",
+        "loadFailed": "Could not load products.",
+        "deleteFailed": "Could not delete that product.",
+        "reorderFailed": "Could not save the new order.",
+        "dragHint": "Drag the handle to reorder",
+        "reorderHint": "Clear the filters to reorder",
+        "savingOrder": "Saving order…",
+        "orderSaved": "Order saved",
+        "status": {
+            "draft": "Draft",
+            "published": "Published"
+        },
+        "form": {
+            "createTitle": "New product",
+            "editTitle": "Edit product",
+            "slug": "URL slug",
+            "slugHint": "Lowercase letters, numbers and hyphens. Appears in the public URL.",
+            "status": "Status",
+            "name": "Name",
+            "summary": "Short summary",
+            "body": "Description",
+            "cover": "Cover image",
+            "noCover": "No image",
+            "removeCover": "Remove image",
+            "coverAfterSave": "You can upload a cover image once the product is saved."
+        },
+        "editor": {
+            "bold": "Bold",
+            "italic": "Italic",
+            "strike": "Strikethrough",
+            "bulletList": "Bullet list",
+            "orderedList": "Numbered list",
+            "quote": "Quote",
+            "code": "Code block",
+            "link": "Link",
+            "image": "Image",
+            "undo": "Undo",
+            "redo": "Redo",
+            "linkPrompt": "Link URL (leave empty to remove)",
+            "imagePrompt": "Image URL"
+        },
+        "deleteDialog": {
+            "title": "Delete product",
+            "body": "Permanently delete {name}? This cannot be undone."
+        }
     },
     "users": {
         "title": "Users",
