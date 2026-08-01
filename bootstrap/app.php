@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureUserHasPermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Allow the Vue SPA to authenticate against the API using session cookies
         // instead of bearer tokens. See config/sanctum.php for the stateful domains.
         $middleware->statefulApi();
+
+        $middleware->alias([
+            'permission' => EnsureUserHasPermission::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -23,6 +23,11 @@ class UserResource extends JsonResource
             'email_verified' => $this->hasVerifiedEmail(),
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
+
+            // Only present when the caller eager-loaded roles, so listing users
+            // never turns into an N+1 over the pivot tables.
+            'roles' => $this->whenLoaded('roles', fn () => $this->roles->pluck('name')),
+            'permissions' => $this->whenLoaded('roles', fn () => $this->permissionNames()),
         ];
     }
 }

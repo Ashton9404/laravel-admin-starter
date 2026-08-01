@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +25,18 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configurePasswordPolicy();
         $this->configureResetPasswordUrl();
+        $this->configureAuthorization();
+    }
+
+    /**
+     * Administrators bypass every gate and policy.
+     *
+     * Returning null (rather than false) for everyone else is deliberate: it
+     * means "no opinion", so the normal policy still gets to decide.
+     */
+    private function configureAuthorization(): void
+    {
+        Gate::before(fn (User $user) => $user->isAdmin() ? true : null);
     }
 
     /**

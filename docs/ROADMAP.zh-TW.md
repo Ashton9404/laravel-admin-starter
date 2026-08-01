@@ -72,9 +72,17 @@
 
 ### 3. RBAC 權限系統
 
-- 狀態: ⬜
+- 狀態: ✅(2026-08-01 完成,測試累計 42 passed)
 - 內容: Admin / Manager / User 角色、users.view/create/update/delete 權限
 - 技術: Middleware、Policy、Gate、多對多關聯(roles ↔ permissions ↔ users)
+- 實作:
+
+  - 資料表 `roles` / `permissions` / `permission_role` / `role_user`(複合主鍵 + cascade delete)
+  - `HasRoles` trait:`hasRole()` / `hasPermission()` / `permissionNames()`,權限清單在實例內記憶化
+  - `Gate::before` 讓 admin 通過所有檢查(回傳 `null` 而非 `false`,才不會蓋掉其他 policy)
+  - `permission:users.view` 路由中介層,支援多權限擇一(OR)
+  - `UserPolicy`:本人可讀寫自己;任何人都不能刪除自己
+  - Demo 帳號 `admin@ / manager@ / user@example.com`,密碼皆為 `password`
 
 ### 4. Dashboard
 
@@ -100,9 +108,19 @@
 - 內容: 後台新增 / 編輯 / 刪除產品、所見即所得(WYSIWYG)富文本內容、
   封面圖與圖庫上傳、草稿 / 發佈、**拖曳決定官網顯示順序**、多語系內容
 - 技術: products + product_translations 資料表(含 `sort_order`)、
-  WYSIWYG 編輯器(選型待定,見下方筆記)、HTML 淨化、檔案上傳
+  **TipTap** 富文本編輯器、HTML 淨化、檔案上傳、vuedraggable 拖曳排序
 - 備註: 2026-08-01 由使用者提出。原規劃的「CMS 文章模組」併入此模組,
   資料表設計相同,差別只在語意;若之後真的需要部落格文章再獨立拆出。
+
+### 11. 官網前台(公開頁面)
+
+- 狀態: ⬜
+- 內容: 不需登入即可瀏覽的產品列表 `/products` 與詳情頁 `/products/{slug}`,
+  排序直接吃後台設定的 `sort_order`,只顯示已發佈的產品
+- 技術: 公開 API(`GET /api/public/products`)、Vue Router 公開路由、SEO meta
+- 備註: 2026-08-01 追加。目的是讓後台的操作有地方「看得到結果」——
+  排序拖一拖、內容改一改,前台立刻反映,這樣這個專案在履歷與作品集上
+  才是一個「能實際運作的系統」,而不只是一堆管理表單。
 
 ### 8. 檔案管理模組
 
@@ -178,6 +196,42 @@ regex 排除 `api|sanctum|storage|up`,避免把 API 與健康檢查也吃掉。
 **為什麼 MySQL 要設 healthcheck + `depends_on: condition: service_healthy`?**
 MySQL 容器「啟動」和「可連線」之間有數秒落差,沒有 healthcheck 的話
 第一次 `artisan migrate` 會隨機失敗。這是 Docker 新手最常踩的坑。
+
+### 筆記 3 — RBAC
+
+**為什麼 admin 角色在 seeder 裡一條權限都沒有?**
+因為 `Gate::before` 已經讓它無條件通過。如果同時又在資料表裡列出 admin 的所有權限,
+就變成兩個事實來源——之後新增一個 `products.delete`,忘了補進 admin 的清單,
+就會出現「管理員反而不能刪產品」的鬼故事。讓 admin 保持空集合,權限只描述「非管理員」。
+
+**`Gate::before` 為什麼要回傳 `null` 而不是 `false`?**
+`false` 是「明確拒絕」,會直接短路掉後面的 policy;`null` 是「我沒意見」,
+交還給正常的授權流程決定。回錯的話所有非管理員會被一律擋死。
+
+**中介層 vs Policy 怎麼分?**
+`permission:users.view` 這種路由中介層回答的是「你有沒有資格碰這個功能」;
+Policy 回答的是「你有沒有資格碰**這一筆**資料」。
+使用者可以改自己的資料但不能改別人的——這種依 record 而異的判斷只有 Policy 做得到。
+
+**權限清單記憶化**
+一個請求裡可能檢查十幾次權限,若每次都查 pivot table 就是十幾條 query。
+`HasRoles::permissionNames()` 用 `??=` 把結果快取在模型實例上,
+並提供 `forgetCachedPermissions()` 在改動角色後手動失效。
+
+### 選型決策 — 為什麼不用 Summernote,改用 TipTap
+
+使用者原本指名 Summernote。它是 jQuery + Bootstrap 時代的編輯器,而本專案是
+Vue 3 + Tailwind 4、完全沒有 jQuery 也沒有 Bootstrap。硬接的代價是:
+額外引入 jQuery 與整包 Bootstrap CSS(bundle 約 +300KB)、Bootstrap 的
+global reset 會跟 Tailwind 打架、且 jQuery 直接操作 DOM 會與 Vue 的
+virtual DOM 搶控制權,元件卸載時容易殘留節點。
+
+改用 **TipTap**(ProseMirror 核心):Vue 3 官方支援、無頭設計所以工具列
+完全用 Tailwind 自己刻、輸出乾淨 HTML 方便存進資料庫與前台渲染。
+使用者要的功能(粗體/標題/清單/連結/圖片上傳/表格)一項不少。
+
+安全性提醒:所見即所得編輯器的產出是使用者可控的 HTML,存進資料庫前
+**必須做 HTML 淨化**,否則後台就成了儲存型 XSS 的入口。
 
 ### 筆記 2 — 認證系統
 

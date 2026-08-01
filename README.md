@@ -32,8 +32,18 @@ cp .env.example .env
 docker compose up -d --build
 
 docker compose exec php php artisan key:generate
-docker compose exec php php artisan migrate
+docker compose exec php php artisan migrate --seed
 ```
+
+### Demo accounts
+
+Seeded by `php artisan db:seed`. All three use the password `password`.
+
+| Email | Role | Can do |
+| --- | --- | --- |
+| `admin@example.com` | Administrator | Everything (bypasses all gates) |
+| `manager@example.com` | Manager | View, create and update users |
+| `user@example.com` | User | Only their own profile |
 
 | Service | URL |
 | --- | --- |

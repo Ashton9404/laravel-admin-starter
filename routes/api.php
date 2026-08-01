@@ -15,8 +15,8 @@ Route::get('/ping', fn () => [
     'php' => PHP_VERSION,
 ]);
 
-Route::get('/user', fn (Request $request) => UserResource::make($request->user()))
-    ->middleware('auth:sanctum')
-    ->name('user');
+Route::get('/user', fn (Request $request) => UserResource::make(
+    $request->user()->load('roles.permissions')
+))->middleware('auth:sanctum')->name('user');
 
 require __DIR__.'/auth.php';
