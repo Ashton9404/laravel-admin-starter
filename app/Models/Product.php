@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Contracts\Loggable;
+use App\Models\Concerns\LogsActivity;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,10 +13,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['slug', 'status', 'sort_order', 'cover_path', 'published_at'])]
-class Product extends Model
+class Product extends Model implements Loggable
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     public const DRAFT = 'draft';
 
@@ -47,6 +49,16 @@ class Product extends Model
         return $this->translations->firstWhere('locale', $locale)
             ?? $this->translations->firstWhere('locale', config('app.fallback_locale'))
             ?? $this->translations->first();
+    }
+
+    /**
+     * The slug rather than the translated name, on purpose. By the time a
+     * deletion is logged the translation rows are already gone with it, and a
+     * slug is what the public URL shows anyway.
+     */
+    public function activityLabel(): string
+    {
+        return $this->slug;
     }
 
     public function isPublished(): bool

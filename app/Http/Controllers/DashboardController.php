@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ActivityResource;
+use App\Models\Activity;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Gate;
 
 class DashboardController extends Controller
 {
@@ -22,7 +25,23 @@ class DashboardController extends Controller
             'registrations' => $this->registrations(),
             'users_by_role' => $this->usersByRole(),
             'recent_users' => $this->recentUsers(),
+            // Null rather than absent for a viewer without activity.view: the
+            // panel that renders it is the same panel either way, and the SPA
+            // should not have to guess why a key is missing.
+            'recent_activity' => Gate::allows('viewAny', Activity::class)
+                ? $this->recentActivity()
+                : null,
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function recentActivity(): array
+    {
+        return ActivityResource::collection(
+            Activity::with(['causer', 'subject'])->latestFirst()->take(8)->get()
+        )->resolve();
     }
 
     /**

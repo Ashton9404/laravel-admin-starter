@@ -46,6 +46,24 @@ class DashboardTest extends TestCase
             ]);
     }
 
+    /**
+     * The panel is the same panel either way, so the key is always present and
+     * null is the answer for "you may not see this" — the SPA never has to work
+     * out why something is missing.
+     */
+    public function test_the_activity_panel_follows_the_permission(): void
+    {
+        $this->actingAs(User::factory()->withRole(Role::MANAGER)->create())
+            ->getJson('/api/dashboard')
+            ->assertOk()
+            ->assertJsonPath('recent_activity', null);
+
+        $this->actingAs(User::factory()->withRole(Role::ADMIN)->create())
+            ->getJson('/api/dashboard')
+            ->assertOk()
+            ->assertJsonStructure(['recent_activity' => [['id', 'event', 'causer', 'created_at']]]);
+    }
+
     public function test_the_totals_are_accurate(): void
     {
         $manager = User::factory()->withRole(Role::MANAGER)->create();

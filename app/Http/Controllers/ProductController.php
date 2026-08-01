@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
+use App\Models\Activity;
 use App\Models\Product;
+use App\Support\ActivityRecorder;
 use App\Support\RichText;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +19,10 @@ use Illuminate\Validation\Rule;
 
 class ProductController extends Controller implements HasMiddleware
 {
-    public function __construct(private readonly RichText $richText) {}
+    public function __construct(
+        private readonly RichText $richText,
+        private readonly ActivityRecorder $recorder,
+    ) {}
 
     /**
      * @return array<int, Middleware>
@@ -91,7 +96,7 @@ class ProductController extends Controller implements HasMiddleware
 
     public function update(UpdateProductRequest $request, Product $product): ProductResource
     {
-        DB::transaction(function () use ($request, $product) {
+        $textChanged = DB::transaction(function () use ($request, $product) {
             $product->fill($request->safe()->only('slug', 'status'));
 
             // Stamp the first publication only. Re-publishing after a spell as a
@@ -102,10 +107,16 @@ class ProductController extends Controller implements HasMiddleware
 
             $product->save();
 
-            if ($request->has('translations')) {
-                $this->syncTranslations($product, $request->input('translations', []));
-            }
+            return $request->has('translations')
+                && $this->syncTranslations($product, $request->input('translations', []));
         });
+
+        // An edit to the name or body changes nothing on the products row, so
+        // Eloquent fires no event for it. The recorder ignores this call when the
+        // row did change and has already logged the diff.
+        if ($textChanged) {
+            $this->recorder->logUnseenUpdate($product);
+        }
 
         return ProductResource::make($product->fresh()->load('translations'));
     }
@@ -137,16 +148,24 @@ class ProductController extends Controller implements HasMiddleware
             }
         });
 
+        // Logged by hand because those updates go through the query builder and
+        // fire no model events. One entry for the whole drag, not one per row:
+        // the user performed a single action and the log should say so.
+        $this->recorder->log(Activity::REORDERED, properties: ['count' => count($validated['ids'])]);
+
         return response()->json(['message' => __('Order saved.')]);
     }
 
     /**
      * @param  array<string, array{name: string, summary?: string|null, body?: string|null}>  $translations
+     * @return bool whether any translation was actually written
      */
-    private function syncTranslations(Product $product, array $translations): void
+    private function syncTranslations(Product $product, array $translations): bool
     {
+        $changed = false;
+
         foreach ($translations as $locale => $values) {
-            $product->translations()->updateOrCreate(
+            $translation = $product->translations()->updateOrCreate(
                 ['locale' => $locale],
                 [
                     'name' => $values['name'],
@@ -156,6 +175,12 @@ class ProductController extends Controller implements HasMiddleware
                     'body' => $this->richText->sanitize($values['body'] ?? null),
                 ],
             );
+
+            // wasChanged() covers the update, wasRecentlyCreated the insert.
+            // Resubmitting the form unchanged writes nothing and is not an edit.
+            $changed = $changed || $translation->wasChanged() || $translation->wasRecentlyCreated;
         }
+
+        return $changed;
     }
 }

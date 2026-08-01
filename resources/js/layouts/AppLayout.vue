@@ -60,6 +60,16 @@ async function logout() {
                     >
                         {{ t('nav.users') }}
                     </RouterLink>
+
+                    <RouterLink
+                        v-if="auth.can('activity.view')"
+                        :to="{ name: 'activity.index' }"
+                        class="text-sm text-neutral-600 transition hover:text-neutral-900
+                               dark:text-neutral-400 dark:hover:text-neutral-100"
+                        active-class="text-neutral-900 dark:text-neutral-100"
+                    >
+                        {{ t('nav.activity') }}
+                    </RouterLink>
                 </div>
 
                 <div class="flex items-center gap-4">

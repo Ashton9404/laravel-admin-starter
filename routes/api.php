@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MediaController;
@@ -47,6 +48,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Only these three: media is upload-and-delete, never edited in place.
     Route::apiResource('media', MediaController::class)->only(['index', 'store', 'destroy']);
+
+    // Read-only on purpose. Nothing writes to the log over HTTP, so there is no
+    // write route that could later be left unguarded.
+    Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
 });
 
 Route::put('/user/locale', [LocaleController::class, 'update'])

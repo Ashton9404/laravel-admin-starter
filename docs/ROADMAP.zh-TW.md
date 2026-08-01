@@ -172,9 +172,19 @@
 
 ### 9. Activity Log
 
-- 狀態: ⬜
+- 狀態: ✅(2026-08-02 完成,測試累計 132 passed,並在瀏覽器實際登入 / 登出驗證)
 - 內容: 登入紀錄、CRUD 操作紀錄
 - 技術: Polymorphic 關聯(subject_type / subject_id)
+- 實作:
+
+  - `activity_log` 資料表,**只有 `created_at`**,沒有 `updated_at`
+  - `causer_name` / `subject_label` 兩個冗餘欄位,讓紀錄在對象被刪除後仍然讀得懂
+  - **Morph map**:資料庫存 `product` 而不是 `App\Models\Product`
+  - `LogsActivity` trait 掛在 User / Product / Media,聽模型事件而非控制器
+  - `RecordAuthenticationActivity` 聽 Laravel 的 `Login` / `Logout` / `Failed`
+  - **密碼記欄位不記值**;`locale`、`remember_token` 整個略過(理由見筆記)
+  - `activity.view` 權限**只有 admin 有**,manager 拿不到
+  - 唯讀 API(只有 `GET /api/activity`)+ `/activity` 頁面 + 儀表板「最近的操作」面板
 
 ### 10. README 與開源文件
 
@@ -423,6 +433,75 @@ SVG 是 XML,可以內嵌 `<script>`,而從同源提供時瀏覽器會當成文�
 **產品封面與媒體庫刻意不共用**
 封面是產品自己的資產,隨產品刪除;媒體庫是內容用的共享素材。
 硬要統一的話,刪掉一張媒體就會讓某個產品的封面變成破圖。
+
+### 筆記 9 — Activity Log
+
+**紀錄要在對象消失之後還讀得懂**
+第一版只存 `causer_id` 與 `subject_id`,兩個外鍵。問題是刪除事件正是最值得
+記錄的事件,而它記完之後那筆資料就沒了 —— 關聯查回來是 null,
+畫面只能顯示「某人刪除了某筆資料」,等於什麼都沒說。
+所以另外存 `causer_name` 與 `subject_label` 兩個冗餘欄位。
+一般情況下反正規化是壞味道,但稽核紀錄是**對過去某個瞬間的陳述**,
+它本來就不該跟著現在的資料一起變 —— 這裡的冗餘是刻意的。
+
+**沒有 `updated_at`**
+稽核紀錄寫完就不該再動。留一個 `updated_at` 等於在告訴讀者「這裡可以改」,
+而一份管理員能編輯的紀錄,證明不了任何事。API 也只有 `GET`,
+沒有寫入路由可以在未來某次改動中被忘記加上保護。
+
+**Morph map:不要把 namespace 寫進資料庫**
+Laravel 預設在多型欄位存完整類別名 `App\Models\Product`。這等於讓 PHP 的
+namespace 變成資料庫 schema 的一部分 —— 之後想改名或搬目錄,
+已經寫下的歷史就壞了。改用 `Relation::enforceMorphMap()` 存 `product`,
+順便強制新的可記錄模型要先在這裡登記,而不是第一次用到時就把 namespace 漏出去。
+
+**踩雷:`$touches` 不會觸發模型事件**
+產品的內文放在 `product_translations`,所以「只改內文」不會動到 `products`
+的任何欄位,Eloquent 也就不會發 `updated` 事件,整筆編輯不會被記錄。
+我第一個想法是在子模型加 `protected $touches = ['product']`,想讓它去戳父層。
+結果測試直接告訴我沒用:Laravel 的 `touchOwners()` 走的是 query builder 的
+`rawUpdate()`,**完全不發模型事件**。
+最後改成在控制器明確補一筆,並在 recorder 用「同一個請求內同一筆資料的
+同一種事件只記一次」的規則擋掉重複。
+`$touches` 還是留著,因為它讓 `products.updated_at` 誠實 —— 但它的用途僅止於此。
+
+**踩雷:listener 被註冊了兩次**
+我在 `AppServiceProvider` 用 `Event::listen()` 明確註冊了三個認證事件的
+listener,結果每次登入都寫兩筆。原因是 Laravel 11+ 會自動掃描 `app/Listeners`,
+把任何 `handle*` 開頭、參數有 type-hint 事件的方法都註冊起來 ——
+我寫的 `handleLogin(Login $event)` 剛好完全符合。手動註冊反而變成重複訂閱。
+拿掉手動註冊,靠框架的自動發現就好。
+
+**密碼:記欄位,不記值**
+「有人改了這個帳號的密碼」是稽核紀錄存在的理由之一,一定要記。
+但雜湊值不能記 —— 那是一份放在管理員看得到的表裡的離線破解素材,
+而且會活得比密碼本身更久(使用者之後換了密碼,舊雜湊還躺在紀錄裡)。
+作法是保留欄位名、把值換成 `[redacted]`,新舊值都要換,
+不然「舊值」就洩漏了「新值」想藏的東西。
+
+**沒人決定過的變更不要記**
+上線後第一次用瀏覽器點開,馬上看到「Admin User 編輯了 Admin User /
+異動欄位:locale」。原因是前端在首次登入時,會把瀏覽器的語言寫回帳號。
+`remember_token` 也一樣,勾了「記住我」就會換一次。
+這兩個都不是任何人「決定」要做的事,卻會在幾乎每次登入後各留一筆,
+真正的操作紀錄就被淹掉了。稽核紀錄最常見的死法不是漏記,是雜訊太多沒人看。
+所以這兩個欄位整個略過,而且當一次更新裡所有異動欄位都被略過時,直接不寫這筆。
+—— 這個問題 132 個測試沒有一個抓得到,是打開瀏覽器看到的。跟第 4 項一樣的教訓。
+
+**為什麼 manager 沒有 `activity.view`**
+其他權限 manager 幾乎都有,這個刻意沒給。這份紀錄的用途之一,
+就是看 manager 拿他那些內容權限做了什麼;把紀錄也交給他,
+等於讓被監督的人自己挑監督者。
+
+**排序要有 tiebreak**
+同一個請求裡寫進去的多筆紀錄,`created_at` 會一模一樣。
+只用時間排序的話,「最新」在每次查詢之間可能不一樣。
+`scopeLatestFirst()` 補上 `id` 遞減,順序才穩定。
+
+**recorder 用容器單例,不用 static**
+「同一請求內已經記過什麼」這個狀態要跟著請求生滅。
+用 static 屬性會活得比請求久 —— 測試全部跑在同一個 PHP 行程裡,
+狀態會從一個測試漏到下一個。註冊成 singleton 就自然隨請求重建。
 
 ### 選型決策 — 為什麼不用 Summernote,改用 TipTap
 

@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import axios, { errorMessage } from '@/bootstrap';
 import AppLayout from '@/layouts/AppLayout.vue';
+import ActivityFeed from '@/components/ActivityFeed.vue';
 import AlertMessage from '@/components/AlertMessage.vue';
 import BarList from '@/components/BarList.vue';
 import StatTile from '@/components/StatTile.vue';
@@ -123,7 +125,33 @@ function formatDate(iso) {
                     </div>
                 </section>
 
+                <!-- Supersedes the recent sign-ups table for anyone who can see
+                     the log: it says the same thing and a great deal more. -->
                 <section
+                    v-if="stats.recent_activity"
+                    class="rounded-xl border border-neutral-200 bg-white px-5 py-4 dark:border-neutral-800 dark:bg-neutral-900"
+                >
+                    <div class="mb-2 flex items-baseline justify-between gap-4">
+                        <div>
+                            <h2 class="text-sm font-medium">{{ t('activity.recentTitle') }}</h2>
+                            <p class="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                {{ t('activity.recentHint') }}
+                            </p>
+                        </div>
+
+                        <RouterLink
+                            :to="{ name: 'activity.index' }"
+                            class="shrink-0 text-xs text-indigo-600 underline underline-offset-4 dark:text-indigo-400"
+                        >
+                            {{ t('activity.viewAll') }}
+                        </RouterLink>
+                    </div>
+
+                    <ActivityFeed :entries="stats.recent_activity" />
+                </section>
+
+                <section
+                    v-else
                     class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
                 >
                     <h2 class="text-sm font-medium">{{ t('dashboard.recentSignUps') }}</h2>

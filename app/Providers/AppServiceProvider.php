@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Media;
+use App\Models\Product;
 use App\Models\User;
+use App\Support\ActivityRecorder;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -15,7 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Singleton so the recorder's per-request bookkeeping is scoped to the
+        // request, and rebuilt from scratch for the next one.
+        $this->app->singleton(ActivityRecorder::class);
     }
 
     /**
@@ -26,6 +32,25 @@ class AppServiceProvider extends ServiceProvider
         $this->configurePasswordPolicy();
         $this->configureResetPasswordUrl();
         $this->configureAuthorization();
+        $this->configureMorphMap();
+    }
+
+    /**
+     * Store short aliases in polymorphic columns instead of class names.
+     *
+     * The default writes "App\Models\Product" into every activity_log row, which
+     * quietly makes the namespace part of the database schema: renaming or moving
+     * the class then breaks history that has already been written. enforceMorphMap
+     * also refuses to guess, so a new loggable model has to be declared here
+     * rather than leaking its namespace on first use.
+     */
+    private function configureMorphMap(): void
+    {
+        Relation::enforceMorphMap([
+            'user' => User::class,
+            'product' => Product::class,
+            'media' => Media::class,
+        ]);
     }
 
     /**

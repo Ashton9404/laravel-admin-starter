@@ -24,6 +24,7 @@
         "products": "Products",
         "media": "Media",
         "users": "Users",
+        "activity": "Activity",
         "signOut": "Sign out",
         "signingOut": "Signing out…"
     },
@@ -104,6 +105,43 @@
         "viewAsTable": "View as table",
         "hideTable": "Hide table",
         "date": "Date"
+    },
+    "activity": {
+        "title": "Activity log",
+        "subtitle": "Who did what, and when.",
+        "recentTitle": "Recent activity",
+        "recentHint": "The last eight things that happened.",
+        "viewAll": "View all",
+        "empty": "Nothing has happened yet.",
+        "loadFailed": "Could not load the activity log.",
+        "allEvents": "All events",
+        "allTypes": "All types",
+        "someone": "Someone",
+        "aRecord": "a record",
+        "changedFields": "Changed: {fields}",
+        "labels": {
+            "created": "Created",
+            "updated": "Updated",
+            "deleted": "Deleted",
+            "login": "Sign-in",
+            "logout": "Sign-out",
+            "login_failed": "Failed sign-in",
+            "reordered": "Reordered"
+        },
+        "types": {
+            "user": "User",
+            "product": "Product",
+            "media": "File"
+        },
+        "events": {
+            "created": "{causer} created {subject}",
+            "updated": "{causer} edited {subject}",
+            "deleted": "{causer} deleted {subject}",
+            "login": "{causer} signed in",
+            "logout": "{causer} signed out",
+            "login_failed": "A sign-in as {email} was rejected",
+            "reordered": "{causer} reordered the catalogue ({count} products)"
+        }
     },
     "media": {
         "title": "Media",

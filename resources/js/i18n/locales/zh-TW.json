@@ -24,6 +24,7 @@
         "products": "產品",
         "media": "媒體",
         "users": "使用者",
+        "activity": "操作紀錄",
         "signOut": "登出",
         "signingOut": "登出中…"
     },
@@ -104,6 +105,43 @@
         "viewAsTable": "以表格檢視",
         "hideTable": "隱藏表格",
         "date": "日期"
+    },
+    "activity": {
+        "title": "操作紀錄",
+        "subtitle": "誰在什麼時候做了什麼。",
+        "recentTitle": "最近的操作",
+        "recentHint": "最新的八筆紀錄。",
+        "viewAll": "查看全部",
+        "empty": "目前還沒有任何紀錄。",
+        "loadFailed": "無法載入操作紀錄。",
+        "allEvents": "所有事件",
+        "allTypes": "所有類型",
+        "someone": "某人",
+        "aRecord": "某筆資料",
+        "changedFields": "異動欄位:{fields}",
+        "labels": {
+            "created": "新增",
+            "updated": "編輯",
+            "deleted": "刪除",
+            "login": "登入",
+            "logout": "登出",
+            "login_failed": "登入失敗",
+            "reordered": "排序"
+        },
+        "types": {
+            "user": "使用者",
+            "product": "產品",
+            "media": "檔案"
+        },
+        "events": {
+            "created": "{causer} 新增了 {subject}",
+            "updated": "{causer} 編輯了 {subject}",
+            "deleted": "{causer} 刪除了 {subject}",
+            "login": "{causer} 登入",
+            "logout": "{causer} 登出",
+            "login_failed": "有人嘗試以 {email} 登入但失敗",
+            "reordered": "{causer} 調整了產品排序(共 {count} 筆)"
+        }
     },
     "media": {
         "title": "媒體",

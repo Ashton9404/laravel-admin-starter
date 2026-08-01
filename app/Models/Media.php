@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Contracts\Loggable;
+use App\Models\Concerns\LogsActivity;
 use Database\Factories\MediaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,10 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['disk', 'path', 'name', 'mime_type', 'size', 'uploaded_by'])]
-class Media extends Model
+class Media extends Model implements Loggable
 {
     /** @use HasFactory<MediaFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'media';
 

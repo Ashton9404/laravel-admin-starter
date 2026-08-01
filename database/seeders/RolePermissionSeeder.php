@@ -23,6 +23,7 @@ class RolePermissionSeeder extends Seeder
         Permission::MEDIA_VIEW => 'View the media library',
         Permission::MEDIA_UPLOAD => 'Upload files',
         Permission::MEDIA_DELETE => 'Delete files',
+        Permission::ACTIVITY_VIEW => 'View the activity log',
     ];
 
     /**
@@ -36,6 +37,11 @@ class RolePermissionSeeder extends Seeder
         Role::ADMIN => [],
         // Managers own the content: full control over products, but deleting
         // user accounts stays with administrators.
+        //
+        // activity.view is withheld for a different reason than the rest. The
+        // log exists partly to show what a manager did with those content
+        // permissions, so handing them the log too would let the watched pick
+        // their own watchers.
         Role::MANAGER => [
             Permission::USERS_VIEW,
             Permission::USERS_CREATE,

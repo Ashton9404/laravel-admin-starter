@@ -31,6 +31,8 @@ class Permission extends Model
 
     public const MEDIA_DELETE = 'media.delete';
 
+    public const ACTIVITY_VIEW = 'activity.view';
+
     /**
      * @return BelongsToMany<Role, $this>
      */
